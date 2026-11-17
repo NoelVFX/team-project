@@ -1,6 +1,7 @@
 package data_access;
 
 import entity.Course;
+import use_case.calculate_grade.CalculateGradeCourseDataAccessInterface;
 import use_case.enrol_course.EnrolCourseDataAccessInterface;
 
 import java.util.ArrayList;
@@ -16,7 +17,8 @@ import java.util.Map;
  * by the interactor tests and until the persistent course DAO is ready.
  * Other course use cases add their data access interface to the implements list.
  */
-public class InMemoryCourseDataAccessObject implements EnrolCourseDataAccessInterface {
+public class InMemoryCourseDataAccessObject implements EnrolCourseDataAccessInterface,
+                                                       CalculateGradeCourseDataAccessInterface {
 
     /** username -> (upper-case course code -> course), in the order the courses were added. */
     private final Map<String, Map<String, Course>> coursesByUser = new HashMap<>();
@@ -39,6 +41,7 @@ public class InMemoryCourseDataAccessObject implements EnrolCourseDataAccessInte
      * @param courseCode the course code, compared ignoring case
      * @return the course, or null if the user has no course with this code
      */
+    @Override
     public Course getCourse(String username, String courseCode) {
         final Map<String, Course> courses = coursesByUser.get(username);
         if (courses == null) {
