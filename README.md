@@ -113,14 +113,6 @@ View <- ViewModel <- Presenter <- OutputBoundary <- OutputData
 
 All dependencies point inward: entities import nothing from other layers, use cases import only entities, and interface adapters import only use cases.
 
-## Design decisions
-
-- **Business rules live in entities.** Course computes the current percentage as Σ(mark × weight) / Σ(weight), and LetterGrade.fromPercentage maps it to a letter. Interactors only orchestrate. (Single Responsibility)
-- **One small data access interface per use case.** Each interactor depends only on the methods it needs, and one DAO class implements all six, as FileUserDataAccessObject does today. (Interface Segregation, Dependency Inversion)
-- **New use cases are added, not edited in.** A new feature is a new set of packages plus one AppBuilder method. (Open/Closed)
-- **Username travels in the input data.** The controller reads it from the home view-model state, so the course DAO does not need to know about login sessions.
-- **Presenters hand views only strings.** Colours and letter grades reach the view model as plain strings, so views never import entities.
-
 ## External API and data persistence
 
 Planned: the course-provided API used by DBUserDataAccessObject on the db-user branch of the starter repo, storing each user's courses as one JSON object. This would satisfy both the external API and the persistence requirements.
