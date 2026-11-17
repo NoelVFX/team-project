@@ -1,8 +1,12 @@
 package app;
 
 import data_access.FileUserDataAccessObject;
+import data_access.InMemoryCourseDataAccessObject;
 import entity.UserFactory;
 import interface_adapter.ViewManagerModel;
+import interface_adapter.course_progress.CourseProgressViewModel;
+import interface_adapter.course_progress.ViewCourseProgressController;
+import interface_adapter.course_progress.ViewCourseProgressPresenter;
 import interface_adapter.logged_in.ChangePasswordController;
 import interface_adapter.logged_in.ChangePasswordPresenter;
 import interface_adapter.logged_in.LoggedInViewModel;
@@ -26,6 +30,10 @@ import use_case.logout.LogoutOutputBoundary;
 import use_case.signup.SignupInputBoundary;
 import use_case.signup.SignupInteractor;
 import use_case.signup.SignupOutputBoundary;
+import use_case.view_course_progress.ViewCourseProgressInputBoundary;
+import use_case.view_course_progress.ViewCourseProgressInteractor;
+import use_case.view_course_progress.ViewCourseProgressOutputBoundary;
+import view.CourseProgressView;
 import view.LoggedInView;
 import view.LoginView;
 import view.SignupView;
@@ -47,12 +55,17 @@ public class AppBuilder {
     // DAO version using local file storage
     final FileUserDataAccessObject userDataAccessObject = new FileUserDataAccessObject("users.csv", userFactory);
 
+    // DAO for each user's courses; kept in memory until the persistent version is written
+    final InMemoryCourseDataAccessObject courseDataAccessObject = new InMemoryCourseDataAccessObject();
+
     private SignupView signupView;
     private SignupViewModel signupViewModel;
     private LoginViewModel loginViewModel;
     private LoggedInViewModel loggedInViewModel;
     private LoggedInView loggedInView;
     private LoginView loginView;
+    private CourseProgressViewModel courseProgressViewModel;
+    private CourseProgressView courseProgressView;
 
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);
@@ -76,6 +89,13 @@ public class AppBuilder {
         loggedInViewModel = new LoggedInViewModel();
         loggedInView = new LoggedInView(loggedInViewModel);
         cardPanel.add(loggedInView, LoggedInViewModel.VIEW_NAME);
+        return this;
+    }
+
+    public AppBuilder addCourseProgressView() {
+        courseProgressViewModel = new CourseProgressViewModel();
+        courseProgressView = new CourseProgressView(courseProgressViewModel);
+        cardPanel.add(courseProgressView, CourseProgressViewModel.VIEW_NAME);
         return this;
     }
 
@@ -125,6 +145,25 @@ public class AppBuilder {
 
         final LogoutController logoutController = new LogoutController(logoutInteractor);
         loggedInView.setLogoutController(logoutController);
+        return this;
+    }
+
+    /**
+     * Adds the View Course Progress Use Case to the application.
+     * @return this builder
+     */
+    public AppBuilder addViewCourseProgressUseCase() {
+        final ViewCourseProgressOutputBoundary viewCourseProgressOutputBoundary =
+                new ViewCourseProgressPresenter(viewManagerModel, courseProgressViewModel,
+                        LoggedInViewModel.VIEW_NAME);
+
+        final ViewCourseProgressInputBoundary viewCourseProgressInteractor =
+                new ViewCourseProgressInteractor(courseDataAccessObject, viewCourseProgressOutputBoundary);
+
+        final ViewCourseProgressController viewCourseProgressController =
+                new ViewCourseProgressController(viewCourseProgressInteractor);
+        loggedInView.setViewCourseProgressController(viewCourseProgressController);
+        courseProgressView.setViewCourseProgressController(viewCourseProgressController);
         return this;
     }
 

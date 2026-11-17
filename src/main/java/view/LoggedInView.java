@@ -1,5 +1,6 @@
 package view;
 
+import interface_adapter.course_progress.ViewCourseProgressController;
 import interface_adapter.logged_in.ChangePasswordController;
 import interface_adapter.logged_in.LoggedInState;
 import interface_adapter.logged_in.LoggedInViewModel;
@@ -22,6 +23,7 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
     private final JLabel passwordErrorField = new JLabel();
     private ChangePasswordController changePasswordController = null;
     private LogoutController logoutController;
+    private ViewCourseProgressController viewCourseProgressController;
 
     private final JLabel username;
 
@@ -29,6 +31,10 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
 
     private final JTextField passwordInputField = new JTextField(15);
     private final JButton changePassword;
+
+    // Temporary way to open a course until the home page lists the enrolled courses.
+    private final JTextField courseCodeInputField = new JTextField(15);
+    private final JButton viewProgress;
 
     public LoggedInView(LoggedInViewModel loggedInViewModel) {
         this.loggedInViewModel = loggedInViewModel;
@@ -92,6 +98,18 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
                 }
         );
 
+        final LabelTextPanel courseCodeInfo = new LabelTextPanel(
+                new JLabel("Course code"), courseCodeInputField);
+        viewProgress = new JButton("View Progress");
+        courseCodeInfo.add(viewProgress);
+
+        viewProgress.addActionListener(
+                evt -> viewCourseProgressController.execute(
+                        loggedInViewModel.getState().getUsername(),
+                        courseCodeInputField.getText()
+                )
+        );
+
         this.add(title);
         this.add(usernameInfo);
         this.add(username);
@@ -99,6 +117,7 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
         this.add(passwordInfo);
         this.add(passwordErrorField);
         this.add(buttons);
+        this.add(courseCodeInfo);
     }
 
     /**
@@ -115,6 +134,10 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
 
     public void setLogoutController(LogoutController logoutController) {
         this.logoutController = logoutController;
+    }
+
+    public void setViewCourseProgressController(ViewCourseProgressController viewCourseProgressController) {
+        this.viewCourseProgressController = viewCourseProgressController;
     }
 
     /**
