@@ -101,6 +101,15 @@ public class CourseProgressView extends JPanel implements CourseProgressViewMode
         JOptionPane.showMessageDialog(this, courseProgressViewModel.getState().getError());
     }
 
+    /**
+     * An attempt to set the target grade finished. Nothing to do here: the new target and
+     * message arrive through stateChanged, and the target grade panel (use case 6) shows errors.
+     */
+    @Override
+    public void targetGradeChanged() {
+        // Intentionally empty.
+    }
+
     private JPanel createTopicRow(TopicRow topic) {
         final JPanel swatch = new JPanel();
         swatch.setBackground(toColor(topic.getConfidence()));

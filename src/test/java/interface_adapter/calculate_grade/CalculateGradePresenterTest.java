@@ -95,5 +95,9 @@ class CalculateGradePresenterTest {
         @Override
         public void targetGradeChanged() {
         }
+
+        @Override
+        public void loadFailed() {
+        }
     }
 }

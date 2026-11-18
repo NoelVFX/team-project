@@ -84,13 +84,13 @@ public class AppBuilder {
     private LoggedInViewModel loggedInViewModel;
     private LoggedInView loggedInView;
     private LoginView loginView;
-    private CourseProgressViewModel courseProgressViewModel;
     private CourseProgressView courseProgressView;
     private EnrolViewModel enrolViewModel;
     private EnrolView enrolView;
 
     // The main window. It is created early so that pop-ups can use it as their owner.
     private final JFrame application = new JFrame("University Learning Progress Tracker");
+    // One view model shared by the progress page and the use cases that update it (3, 5, 6).
     private final CourseProgressViewModel courseProgressViewModel = new CourseProgressViewModel();
     private GradeCalculatorDialog gradeCalculatorDialog;
 
@@ -120,9 +120,11 @@ public class AppBuilder {
     }
 
     public AppBuilder addCourseProgressView() {
-        courseProgressViewModel = new CourseProgressViewModel();
         courseProgressView = new CourseProgressView(courseProgressViewModel);
         cardPanel.add(courseProgressView, CourseProgressViewModel.VIEW_NAME);
+        return this;
+    }
+
     public AppBuilder addEnrolView() {
         enrolViewModel = new EnrolViewModel();
         enrolView = new EnrolView(enrolViewModel);
@@ -216,6 +218,7 @@ public class AppBuilder {
         return this;
     }
 
+    /**
      * Adds the Calculate Grade Use Case (use case 5) to the application.
      * The course progress page opens the pop-up with getGradeCalculatorDialog().open().
      * @return this builder

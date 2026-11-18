@@ -71,6 +71,11 @@ public final class GradeToolsDemo {
             public void targetGradeChanged() {
                 // Not used by this demo.
             }
+
+            @Override
+            public void loadFailed() {
+                // The demo opens its course directly, so loading cannot fail.
+            }
         });
 
         final JPanel page = new JPanel();
