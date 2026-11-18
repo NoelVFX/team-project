@@ -35,11 +35,8 @@ Each member owns one screen area (home, progress page, pop-ups) so pull requests
 **Use cases 3 and 4: View and update course progress.** As a user, I can open one of my courses and update my confidence in its topics, so that I can see what I understand and which topics need more attention.
 > Mia selects CSC207 on the home page. The progress page shows her estimated grade, target grade and every topic with its confidence colour. She now feels confident with Clean Architecture, so she changes it from yellow to green; the change is saved and the page shows it straight away.
 
-**Use case 5: Calculate current grade.** As a user, I can calculate my current grade from the marks I have received, so that I know how I am doing in a course.
-> Mia opens the grade calculator for CSC207 and enters Midterm 1 (78%, worth 15%) and Assignment 1 (92%, worth 10%). The calculator shows a current grade of 83.6% (A-) based on 25% of the course, saves the marks, and her progress page now shows an estimated grade of A-.
-
-**Use case 6: Set target grade.** As a user, I can set a target grade for a course, so that I know what average I need on the rest of the course to reach it.
-> Mia raises her CSC207 target from A- to A. The progress page tells her she needs an average of 85.5% on the remaining 75% of the course, so she plans extra practice before the final exam.
+**Use cases 5 and 6: Calculate current grade and set a target.** As a user, I can calculate my current grade from my marks and set a target grade, so that I know how I am doing in a course and what average I need on the rest of it.
+> Mia opens the grade calculator for CSC207 and enters Midterm 1 (78%, worth 15%) and Assignment 1 (92%, worth 10%). The calculator shows a current grade of 83.6% (A-) based on 25% of the course, saves the marks, and her progress page now shows an estimated grade of A-. She then raises her target from A- to A, and the page tells her she needs an average of 85.5% on the remaining 75%, so she plans extra practice before the final exam.
 
 **Use case 7: Rank subjects by confidence.** As a user, I can know which category of courses I am good at, so that I know where to spend my study time.
 > Mia is enrolled in CSC207, CSC148, MAT137 and STA247. She presses Subject Ranking on the home page and sees Mathematics first at 83%, Computer Science second at 30% and Statistics last at 0%, so she spends the weekend on Statistics.
