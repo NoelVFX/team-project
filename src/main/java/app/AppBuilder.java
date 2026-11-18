@@ -13,6 +13,8 @@ import interface_adapter.ViewManagerModel;
 import interface_adapter.calculate_grade.CalculateGradeController;
 import interface_adapter.calculate_grade.CalculateGradePresenter;
 import interface_adapter.calculate_grade.GradeCalculatorViewModel;
+import interface_adapter.set_target_grade.SetTargetGradeController;
+import interface_adapter.set_target_grade.SetTargetGradePresenter;
 import interface_adapter.course_progress.CourseProgressViewModel;
 import interface_adapter.enrol_course.EnrolCourseController;
 import interface_adapter.enrol_course.EnrolCoursePresenter;
@@ -31,6 +33,9 @@ import interface_adapter.signup.SignupViewModel;
 import use_case.calculate_grade.CalculateGradeInputBoundary;
 import use_case.calculate_grade.CalculateGradeInteractor;
 import use_case.calculate_grade.CalculateGradeOutputBoundary;
+import use_case.set_target_grade.SetTargetGradeInputBoundary;
+import use_case.set_target_grade.SetTargetGradeInteractor;
+import use_case.set_target_grade.SetTargetGradeOutputBoundary;
 import use_case.enrol_course.EnrolCourseInputBoundary;
 import use_case.enrol_course.EnrolCourseInteractor;
 import use_case.enrol_course.EnrolCourseOutputBoundary;
@@ -55,6 +60,7 @@ import view.GradeCalculatorDialog;
 import view.LoggedInView;
 import view.LoginView;
 import view.SignupView;
+import view.TargetGradePanel;
 import view.ViewManager;
 
 import javax.swing.*;
@@ -93,6 +99,7 @@ public class AppBuilder {
     // One view model shared by the progress page and the use cases that update it (3, 5, 6).
     private final CourseProgressViewModel courseProgressViewModel = new CourseProgressViewModel();
     private GradeCalculatorDialog gradeCalculatorDialog;
+    private TargetGradePanel targetGradePanel;
 
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);
@@ -245,6 +252,29 @@ public class AppBuilder {
 
     public GradeCalculatorDialog getGradeCalculatorDialog() {
         return gradeCalculatorDialog;
+    }
+
+    /**
+     * Adds the Set Target Grade Use Case (use case 6) to the application.
+     * The course progress page embeds the panel from getTargetGradePanel().
+     * @return this builder
+     */
+    public AppBuilder addSetTargetGradeUseCase() {
+        targetGradePanel = new TargetGradePanel(courseProgressViewModel);
+
+        final SetTargetGradeOutputBoundary setTargetGradeOutputBoundary =
+                new SetTargetGradePresenter(courseProgressViewModel);
+        final SetTargetGradeInputBoundary setTargetGradeInteractor =
+                new SetTargetGradeInteractor(courseDataAccessObject, setTargetGradeOutputBoundary);
+
+        final SetTargetGradeController setTargetGradeController =
+                new SetTargetGradeController(setTargetGradeInteractor);
+        targetGradePanel.setSetTargetGradeController(setTargetGradeController);
+        return this;
+    }
+
+    public TargetGradePanel getTargetGradePanel() {
+        return targetGradePanel;
     }
 
     public JFrame build() {
