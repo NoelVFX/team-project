@@ -3,6 +3,7 @@ package entity;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalDouble;
 
 /**
@@ -85,16 +86,16 @@ public class Subject {
 
     /**
      * Returns the student's average confidence over every topic of every course in this
-     * subject, using the score of each topic's confidence level. Every topic counts the same,
-     * so a course with more topics has more influence.
+     * subject. Every topic counts the same, so a course with more topics has more influence.
+     * @param scoring how much each confidence level is worth
      * @return the average confidence from 0 to 1, or empty if the subject has no topics
      */
-    public OptionalDouble getAverageConfidence() {
+    public OptionalDouble getAverageConfidence(ConfidenceScoringStrategy scoring) {
         double total = 0;
         int count = 0;
         for (Course course : courses) {
             for (Topic topic : course.getTopics()) {
-                total += topic.getConfidence().getScore();
+                total += scoring.score(topic.getConfidence());
                 count++;
             }
         }
@@ -102,5 +103,18 @@ public class Subject {
             return OptionalDouble.empty();
         }
         return OptionalDouble.of(total / count);
+    }
+
+    /**
+     * Returns the confidence level of this subject as a whole, from its average confidence.
+     * @param scoring how much each confidence level is worth and which level an average counts as
+     * @return the overall confidence level, or empty if the subject has no topics
+     */
+    public Optional<ConfidenceLevel> getOverallConfidence(ConfidenceScoringStrategy scoring) {
+        final OptionalDouble average = getAverageConfidence(scoring);
+        if (!average.isPresent()) {
+            return Optional.empty();
+        }
+        return Optional.of(scoring.levelFor(average.getAsDouble()));
     }
 }

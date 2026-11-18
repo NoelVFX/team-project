@@ -13,6 +13,10 @@ public class SetTargetGradePresenter implements SetTargetGradeOutputBoundary {
 
     private final CourseProgressViewModel courseProgressViewModel;
 
+    /**
+     * Creates the presenter.
+     * @param courseProgressViewModel the view model of the course progress page
+     */
     public SetTargetGradePresenter(CourseProgressViewModel courseProgressViewModel) {
         this.courseProgressViewModel = courseProgressViewModel;
     }

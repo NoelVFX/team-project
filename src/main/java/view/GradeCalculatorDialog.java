@@ -34,6 +34,10 @@ import java.util.List;
 public class GradeCalculatorDialog extends JDialog implements GradeCalculatorViewModelListener {
 
     private static final String[] COLUMNS = {"Assessment", "Mark (%)", "Weight (%)"};
+    private static final int TABLE_WIDTH = 420;
+    private static final int TABLE_HEIGHT = 180;
+    private static final int PADDING = 10;
+    private static final int GAP = 8;
 
     private final GradeCalculatorViewModel gradeCalculatorViewModel;
     private final CourseProgressViewModel courseProgressViewModel;
@@ -61,8 +65,25 @@ public class GradeCalculatorDialog extends JDialog implements GradeCalculatorVie
         table.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
         table.setFillsViewportHeight(true);
         final JScrollPane tableScroll = new JScrollPane(table);
-        tableScroll.setPreferredSize(new Dimension(420, 180));
+        tableScroll.setPreferredSize(new Dimension(TABLE_WIDTH, TABLE_HEIGHT));
 
+        final JPanel bottom = new JPanel(new BorderLayout());
+        bottom.add(createMessages(), BorderLayout.NORTH);
+        bottom.add(createButtons(), BorderLayout.SOUTH);
+
+        final JPanel content = new JPanel(new BorderLayout(0, GAP));
+        content.setBorder(BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING));
+        content.add(new JLabel("Enter each test, assignment or exam with its mark and weight."),
+                BorderLayout.NORTH);
+        content.add(tableScroll, BorderLayout.CENTER);
+        content.add(bottom, BorderLayout.SOUTH);
+
+        setContentPane(content);
+        setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+        pack();
+    }
+
+    private JPanel createButtons() {
         final JButton addRow = new JButton("Add Row");
         final JButton removeRow = new JButton("Remove Row");
         final JButton calculate = new JButton("Calculate");
@@ -78,28 +99,22 @@ public class GradeCalculatorDialog extends JDialog implements GradeCalculatorVie
         buttons.add(removeRow);
         buttons.add(calculate);
         buttons.add(close);
+        return buttons;
+    }
 
+    private JPanel createMessages() {
         errorLabel.setForeground(Color.RED);
         final JPanel messages = new JPanel();
         messages.setLayout(new BoxLayout(messages, BoxLayout.Y_AXIS));
         messages.add(resultLabel);
         messages.add(errorLabel);
-
-        final JPanel content = new JPanel(new BorderLayout(0, 8));
-        content.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        content.add(new JLabel("Enter each test, assignment or exam with its mark and weight."),
-                BorderLayout.NORTH);
-        content.add(tableScroll, BorderLayout.CENTER);
-        final JPanel bottom = new JPanel(new BorderLayout());
-        bottom.add(messages, BorderLayout.NORTH);
-        bottom.add(buttons, BorderLayout.SOUTH);
-        content.add(bottom, BorderLayout.SOUTH);
-
-        setContentPane(content);
-        setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
-        pack();
+        return messages;
     }
 
+    /**
+     * Sets the controller that runs the Calculate Grade Use Case.
+     * @param calculateGradeController the controller
+     */
     public void setCalculateGradeController(CalculateGradeController calculateGradeController) {
         this.calculateGradeController = calculateGradeController;
     }
@@ -141,11 +156,9 @@ public class GradeCalculatorDialog extends JDialog implements GradeCalculatorVie
             }
         }
         final CourseProgressState progressState = courseProgressViewModel.getState();
-        if (rows.isEmpty()) {
-            if (progressState.getAssessments().isEmpty()) {
-                errorLabel.setText("Enter at least one assessment.");
-                return;
-            }
+        // Submitting no rows clears the saved marks, so ask first. With nothing saved,
+        // the use case itself reports that at least one assessment is needed.
+        if (rows.isEmpty() && !progressState.getAssessments().isEmpty()) {
             final int choice = JOptionPane.showConfirmDialog(this,
                     "All rows are empty. Clear every saved mark for "
                             + progressState.getCourseCode() + "?",

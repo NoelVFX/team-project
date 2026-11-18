@@ -14,6 +14,10 @@ public class CalculateGradeController {
 
     private final CalculateGradeInputBoundary calculateGradeUseCaseInteractor;
 
+    /**
+     * Creates the controller.
+     * @param calculateGradeUseCaseInteractor the interactor of the Calculate Grade Use Case
+     */
     public CalculateGradeController(CalculateGradeInputBoundary calculateGradeUseCaseInteractor) {
         this.calculateGradeUseCaseInteractor = calculateGradeUseCaseInteractor;
     }
