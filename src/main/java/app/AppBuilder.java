@@ -2,6 +2,11 @@ package app;
 
 import data_access.FileUserDataAccessObject;
 import data_access.InMemoryCourseDataAccessObject;
+import entity.UserFactory;
+import interface_adapter.ViewManagerModel;
+import interface_adapter.course_progress.CourseProgressViewModel;
+import interface_adapter.course_progress.ViewCourseProgressController;
+import interface_adapter.course_progress.ViewCourseProgressPresenter;
 import entity.CourseFactory;
 import entity.UserFactory;
 import interface_adapter.ViewManagerModel;
@@ -41,6 +46,10 @@ import use_case.logout.LogoutOutputBoundary;
 import use_case.signup.SignupInputBoundary;
 import use_case.signup.SignupInteractor;
 import use_case.signup.SignupOutputBoundary;
+import use_case.view_course_progress.ViewCourseProgressInputBoundary;
+import use_case.view_course_progress.ViewCourseProgressInteractor;
+import use_case.view_course_progress.ViewCourseProgressOutputBoundary;
+import view.CourseProgressView;
 import view.EnrolView;
 import view.GradeCalculatorDialog;
 import view.LoggedInView;
@@ -64,6 +73,7 @@ public class AppBuilder {
     // DAO version using local file storage
     final FileUserDataAccessObject userDataAccessObject = new FileUserDataAccessObject("users.csv", userFactory);
 
+    // DAO for each user's courses; kept in memory until the persistent version is written
     final CourseFactory courseFactory = new CourseFactory();
     // TODO: swap for the persistent course DAO once it exists; courses are lost on restart for now.
     final InMemoryCourseDataAccessObject courseDataAccessObject = new InMemoryCourseDataAccessObject();
@@ -74,6 +84,8 @@ public class AppBuilder {
     private LoggedInViewModel loggedInViewModel;
     private LoggedInView loggedInView;
     private LoginView loginView;
+    private CourseProgressViewModel courseProgressViewModel;
+    private CourseProgressView courseProgressView;
     private EnrolViewModel enrolViewModel;
     private EnrolView enrolView;
 
@@ -107,6 +119,10 @@ public class AppBuilder {
         return this;
     }
 
+    public AppBuilder addCourseProgressView() {
+        courseProgressViewModel = new CourseProgressViewModel();
+        courseProgressView = new CourseProgressView(courseProgressViewModel);
+        cardPanel.add(courseProgressView, CourseProgressViewModel.VIEW_NAME);
     public AppBuilder addEnrolView() {
         enrolViewModel = new EnrolViewModel();
         enrolView = new EnrolView(enrolViewModel);
@@ -182,6 +198,24 @@ public class AppBuilder {
     }
 
     /**
+     * Adds the View Course Progress Use Case to the application.
+     * @return this builder
+     */
+    public AppBuilder addViewCourseProgressUseCase() {
+        final ViewCourseProgressOutputBoundary viewCourseProgressOutputBoundary =
+                new ViewCourseProgressPresenter(viewManagerModel, courseProgressViewModel,
+                        LoggedInViewModel.VIEW_NAME);
+
+        final ViewCourseProgressInputBoundary viewCourseProgressInteractor =
+                new ViewCourseProgressInteractor(courseDataAccessObject, viewCourseProgressOutputBoundary);
+
+        final ViewCourseProgressController viewCourseProgressController =
+                new ViewCourseProgressController(viewCourseProgressInteractor);
+        loggedInView.setViewCourseProgressController(viewCourseProgressController);
+        courseProgressView.setViewCourseProgressController(viewCourseProgressController);
+        return this;
+    }
+
      * Adds the Calculate Grade Use Case (use case 5) to the application.
      * The course progress page opens the pop-up with getGradeCalculatorDialog().open().
      * @return this builder

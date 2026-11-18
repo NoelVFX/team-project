@@ -1,69 +1,78 @@
-package data_access;
+ package data_access;
 
-import entity.Course;
-import use_case.calculate_grade.CalculateGradeCourseDataAccessInterface;
-import use_case.enrol_course.EnrolCourseDataAccessInterface;
+    import entity.Course;
+    import use_case.calculate_grade.CalculateGradeCourseDataAccessInterface;
+    import use_case.enrol_course.EnrolCourseDataAccessInterface;
+    import use_case.view_course_progress.ViewCourseProgressCourseDataAccessInterface;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-/**
- * In-memory implementation of the DAO for storing each user's courses. This
- * implementation does NOT persist data between runs of the program; it is used
- * by the interactor tests and until the persistent course DAO is ready.
- * Other course use cases add their data access interface to the implements list.
- */
-public class InMemoryCourseDataAccessObject implements EnrolCourseDataAccessInterface,
-                                                       CalculateGradeCourseDataAccessInterface {
-
-    /** username -> (upper-case course code -> course), in the order the courses were added. */
-    private final Map<String, Map<String, Course>> coursesByUser = new HashMap<>();
-
-    @Override
-    public boolean existsByCode(String username, String courseCode) {
-        final Map<String, Course> courses = coursesByUser.get(username);
-        return courses != null && courses.containsKey(key(courseCode));
-    }
-
-    @Override
-    public void saveCourse(String username, Course course) {
-        coursesByUser.computeIfAbsent(username, user -> new LinkedHashMap<>())
-                .put(key(course.getCode()), course);
-    }
+    import java.util.ArrayList;
+    import java.util.HashMap;
+    import java.util.LinkedHashMap;
+    import java.util.List;
+    import java.util.Locale;
+    import java.util.Map;
 
     /**
-     * Returns the user's course with the given code.
-     * @param username the user who owns the course
-     * @param courseCode the course code, compared ignoring case
-     * @return the course, or null if the user has no course with this code
+     * In-memory implementation of the DAO for storing each user's courses.
+     * This implementation does NOT persist data between runs.
      */
-    @Override
-    public Course getCourse(String username, String courseCode) {
-        final Map<String, Course> courses = coursesByUser.get(username);
-        if (courses == null) {
-            return null;
-        }
-        return courses.get(key(courseCode));
-    }
+    public class InMemoryCourseDataAccessObject implements
+            ViewCourseProgressCourseDataAccessInterface,
+            EnrolCourseDataAccessInterface,
+            CalculateGradeCourseDataAccessInterface {
 
-    /**
-     * Returns all of the user's courses, in the order they were enrolled.
-     * @param username the user who owns the courses
-     * @return a new list of the user's courses, empty if they have none
-     */
-    public List<Course> getCourses(String username) {
-        final Map<String, Course> courses = coursesByUser.get(username);
-        if (courses == null) {
-            return new ArrayList<>();
-        }
-        return new ArrayList<>(courses.values());
-    }
+        /** Maps a username to that user's courses by upper-case course code. */
+        private final Map<String, Map<String, Course>> coursesByUser = new HashMap<>();
 
-    private static String key(String courseCode) {
-        return courseCode.trim().toUpperCase(Locale.ROOT);
+        /**
+         * Compatibility helper for the view-progress branch.
+         */
+        public void save(String username, Course course) {
+            saveCourse(username, course);
+        }
+
+        @Override
+        public boolean existsByCode(String username, String courseCode) {
+            return courseExists(username, courseCode);
+        }
+
+        @Override
+        public boolean courseExists(String username, String courseCode) {
+            return getCourse(username, courseCode) != null;
+        }
+
+        @Override
+        public void saveCourse(String username, Course course) {
+            coursesByUser
+                    .computeIfAbsent(username, user -> new LinkedHashMap<>())
+                    .put(key(course.getCode()), course);
+        }
+
+        @Override
+        public Course getCourse(String username, String courseCode) {
+            final Map<String, Course> courses = coursesByUser.get(username);
+
+            if (courses == null || courseCode == null) {
+                return null;
+            }
+
+            return courses.get(key(courseCode));
+        }
+
+        /**
+         * Returns all of the user's courses in enrolment order.
+         */
+        public List<Course> getCourses(String username) {
+            final Map<String, Course> courses = coursesByUser.get(username);
+
+            if (courses == null) {
+                return new ArrayList<>();
+            }
+
+            return new ArrayList<>(courses.values());
+        }
+
+        private static String key(String courseCode) {
+            return courseCode.trim().toUpperCase(Locale.ROOT);
+        }
     }
-}

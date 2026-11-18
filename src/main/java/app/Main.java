@@ -9,11 +9,13 @@ public class Main {
                 .addLoginView()
                 .addSignupView()
                 .addLoggedInView()
+                .addCourseProgressView()
                 .addEnrolView()
                 .addSignupUseCase()
                 .addLoginUseCase()
                 .addLogoutUseCase()
                 .addChangePasswordUseCase()
+                .addViewCourseProgressUseCase()
                 .addEnrolCourseUseCase()
                 .addCalculateGradeUseCase()
                 .build();
