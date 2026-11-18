@@ -69,6 +69,10 @@ class ViewCourseProgressPresenterTest {
             public void loadFailed() {
                 shownError[0] = courseProgressViewModel.getState().getError();
             }
+
+            @Override
+            public void targetGradeChanged() {
+            }
         });
 
         presenter.prepareFailView("You are not enrolled in MAT137.");
