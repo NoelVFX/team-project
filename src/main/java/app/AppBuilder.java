@@ -13,6 +13,9 @@ import interface_adapter.ViewManagerModel;
 import interface_adapter.calculate_grade.CalculateGradeController;
 import interface_adapter.calculate_grade.CalculateGradePresenter;
 import interface_adapter.calculate_grade.GradeCalculatorViewModel;
+import interface_adapter.rank_subjects.RankSubjectsController;
+import interface_adapter.rank_subjects.RankSubjectsPresenter;
+import interface_adapter.rank_subjects.SubjectRankingViewModel;
 import interface_adapter.set_target_grade.SetTargetGradeController;
 import interface_adapter.set_target_grade.SetTargetGradePresenter;
 import interface_adapter.course_progress.CourseProgressViewModel;
@@ -33,6 +36,9 @@ import interface_adapter.signup.SignupViewModel;
 import use_case.calculate_grade.CalculateGradeInputBoundary;
 import use_case.calculate_grade.CalculateGradeInteractor;
 import use_case.calculate_grade.CalculateGradeOutputBoundary;
+import use_case.rank_subjects.RankSubjectsInputBoundary;
+import use_case.rank_subjects.RankSubjectsInteractor;
+import use_case.rank_subjects.RankSubjectsOutputBoundary;
 import use_case.set_target_grade.SetTargetGradeInputBoundary;
 import use_case.set_target_grade.SetTargetGradeInteractor;
 import use_case.set_target_grade.SetTargetGradeOutputBoundary;
@@ -60,6 +66,7 @@ import view.GradeCalculatorDialog;
 import view.LoggedInView;
 import view.LoginView;
 import view.SignupView;
+import view.SubjectRankingDialog;
 import view.TargetGradePanel;
 import view.ViewManager;
 
@@ -100,6 +107,7 @@ public class AppBuilder {
     private final CourseProgressViewModel courseProgressViewModel = new CourseProgressViewModel();
     private GradeCalculatorDialog gradeCalculatorDialog;
     private TargetGradePanel targetGradePanel;
+    private SubjectRankingDialog subjectRankingDialog;
 
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);
@@ -275,6 +283,30 @@ public class AppBuilder {
 
     public TargetGradePanel getTargetGradePanel() {
         return targetGradePanel;
+    }
+
+    /**
+     * Adds the Rank Subjects Use Case (use case 7) to the application.
+     * The home page opens the pop-up with getSubjectRankingDialog().open(username).
+     * @return this builder
+     */
+    public AppBuilder addRankSubjectsUseCase() {
+        final SubjectRankingViewModel subjectRankingViewModel = new SubjectRankingViewModel();
+        subjectRankingDialog = new SubjectRankingDialog(application, subjectRankingViewModel);
+
+        final RankSubjectsOutputBoundary rankSubjectsOutputBoundary =
+                new RankSubjectsPresenter(subjectRankingViewModel);
+        final RankSubjectsInputBoundary rankSubjectsInteractor =
+                new RankSubjectsInteractor(courseDataAccessObject, rankSubjectsOutputBoundary);
+
+        final RankSubjectsController rankSubjectsController =
+                new RankSubjectsController(rankSubjectsInteractor);
+        subjectRankingDialog.setRankSubjectsController(rankSubjectsController);
+        return this;
+    }
+
+    public SubjectRankingDialog getSubjectRankingDialog() {
+        return subjectRankingDialog;
     }
 
     public JFrame build() {

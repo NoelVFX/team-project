@@ -3,6 +3,7 @@ package entity;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
@@ -46,6 +47,26 @@ public class Course {
 
     public String getName() {
         return name;
+    }
+
+    /**
+     * Returns the subject this course belongs to: the letters at the start of the
+     * course code, in upper case. For example, "CSC207" and "csc148" are both "CSC".
+     * @return the subject code, or the whole code in upper case if it does not start with a letter
+     */
+    public String getSubjectCode() {
+        int end = 0;
+        while (end < code.length() && Character.isLetter(code.charAt(end))) {
+            end++;
+        }
+        final String subject;
+        if (end == 0) {
+            subject = code;
+        }
+        else {
+            subject = code.substring(0, end);
+        }
+        return subject.toUpperCase(Locale.ROOT);
     }
 
     public LetterGrade getTargetGrade() {

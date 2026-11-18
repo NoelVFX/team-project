@@ -19,6 +19,7 @@ public class Main {
                 .addEnrolCourseUseCase()
                 .addCalculateGradeUseCase()
                 .addSetTargetGradeUseCase()
+                .addRankSubjectsUseCase()
                 .build();
 
         application.pack();

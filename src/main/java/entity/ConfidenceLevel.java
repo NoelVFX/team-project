@@ -10,20 +10,22 @@ import java.util.List;
  */
 public final class ConfidenceLevel {
     /** The student is confident with the topic. */
-    public static final ConfidenceLevel GREEN = new ConfidenceLevel("GREEN");
+    public static final ConfidenceLevel GREEN = new ConfidenceLevel("GREEN", 1.0);
     /** The student is not so confident with the topic. */
-    public static final ConfidenceLevel YELLOW = new ConfidenceLevel("YELLOW");
+    public static final ConfidenceLevel YELLOW = new ConfidenceLevel("YELLOW", 0.5);
     /** The topic needs more attention. */
-    public static final ConfidenceLevel RED = new ConfidenceLevel("RED");
+    public static final ConfidenceLevel RED = new ConfidenceLevel("RED", 0.0);
 
     /** Every confidence level, from most to least confident. */
     private static final List<ConfidenceLevel> ALL_LEVELS =
             Collections.unmodifiableList(Arrays.asList(GREEN, YELLOW, RED));
 
     private final String name;
+    private final double score;
 
-    private ConfidenceLevel(String name) {
+    private ConfidenceLevel(String name, double score) {
         this.name = name;
+        this.score = score;
     }
 
     /**
@@ -32,6 +34,15 @@ public final class ConfidenceLevel {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * Returns how confident this level is as a number, used to average confidence
+     * over many topics: 1 for GREEN, 0.5 for YELLOW and 0 for RED.
+     * @return the score of this confidence level, from 0 to 1
+     */
+    public double getScore() {
+        return score;
     }
 
     /**
