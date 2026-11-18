@@ -18,6 +18,7 @@ public class Main {
                 .addViewCourseProgressUseCase()
                 .addEnrolCourseUseCase()
                 .addCalculateGradeUseCase()
+                .addSetTargetGradeUseCase()
                 .build();
 
         application.pack();

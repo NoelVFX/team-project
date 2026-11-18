@@ -25,7 +25,7 @@ Signup, login, logout and change password are reused from the starter code. Each
 | 3 | View course progress | Click a course on home | Loads one course's grades and topics and switches to the progress page | Member B | Done (PR #5) |
 | 4 | Update topic confidence | Colour selector on a topic | Sets the topic's confidence level and saves | Member B | Not started |
 | 5 | Calculate current grade | Calculate in the pop-up | Validates marks and weights, computes the weighted grade, saves the assessments, updates the estimated grade | Member C | Done (PR #4) |
-| 6 | Set target grade | Target selector on progress page | Updates the target grade and reports the average needed on the remaining weight | Member C | In progress |
+| 6 | Set target grade | Target selector on progress page | Updates the target grade and reports the average needed on the remaining weight | Member C | Done |
 | 7 | Rank subjects by confidence | Subject Ranking button on home | Groups courses by subject code (the letters of the course code, e.g. MAT), averages every topic's confidence (green 100%, yellow 50%, red 0%) and ranks subjects from most to least confident; ties share a rank | Member C | In progress |
 
 Each member owns one screen area (home, progress page, pop-ups) so pull requests do not collide. `Main`, `AppBuilder`, the entities, factories and data access objects are shared. Possible extensions: Add Topic, Drop Course.

@@ -3,6 +3,7 @@
     import entity.Course;
     import use_case.calculate_grade.CalculateGradeCourseDataAccessInterface;
     import use_case.enrol_course.EnrolCourseDataAccessInterface;
+    import use_case.set_target_grade.SetTargetGradeCourseDataAccessInterface;
     import use_case.view_course_progress.ViewCourseProgressCourseDataAccessInterface;
 
     import java.util.ArrayList;
@@ -19,7 +20,8 @@
     public class InMemoryCourseDataAccessObject implements
             ViewCourseProgressCourseDataAccessInterface,
             EnrolCourseDataAccessInterface,
-            CalculateGradeCourseDataAccessInterface {
+            CalculateGradeCourseDataAccessInterface,
+            SetTargetGradeCourseDataAccessInterface {
 
         /** Maps a username to that user's courses by upper-case course code. */
         private final Map<String, Map<String, Course>> coursesByUser = new HashMap<>();
