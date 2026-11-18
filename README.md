@@ -2,107 +2,51 @@
 
 A Java Swing desktop application that lets university students track how they are doing in each course they are enrolled in.
 
-Status: planning. This document is the agreed scaffold; the new use cases are not implemented yet.
-
 ## Program overview
 
 A student signs up, logs in, and lands on a home page listing their enrolled courses. From there they can:
 
-- Enrol in a course by pressing Enrol and entering the course details (code, name, target grade, main topics/chapters).
-- Open a course's learning progress page, which shows:
-  - the estimated grade and the target grade as letter grades (A, B, C, D, ...);
-  - the list of main topics/chapters, each marked green (confident), yellow (not so confident), or red (needs more attention).
-- Calculate their current grade in a small pop-up grade calculator, by entering test/assignment/exam marks and how much each one weighs.
-- See which subjects they are most confident in: courses are grouped by subject (every MAT course, every CSC course, ...) and the subjects are ranked by the average confidence of their topics.
+- **Enrol in a course** by entering its code, name, target grade and main topics/chapters.
+- **Open a course's progress page**, showing the estimated and target letter grades (A, B, C, ...) and each topic marked green (confident), yellow (not so confident) or red (needs more attention).
+- **Calculate their current grade** in a pop-up, by entering each test/assignment/exam mark and its weight.
+- **Set a target grade** and see the average they need on the rest of the course.
+- **Rank their subjects by confidence**: courses are grouped by subject (all MAT courses, all CSC courses, ...) and ranked by the average confidence of their topics.
 
-Data is saved per user, so courses, topic confidence and marks are still there after the program is restarted.
+Data is saved per user, so courses, topic confidence and marks are still there after a restart.
 
-## Use cases and team split
+## Use cases
 
-Signup, login, logout and change password come from the starter code and are reused. The new use cases below are each one CA engine.
+Signup, login, logout and change password are reused from the starter code. Each new use case is one CA engine.
 
-| # | Use case | Trigger | What the interactor does | Owner |
-|---|---|---|---|---|
-| 1 | Enrol in course | Enrol button on home | Validates code, name, target grade and topic list; rejects duplicates; saves a new Course | Member A |
-| 2 | View enrolled courses | Home page shown after login | Loads the user's courses with estimated vs target grade for the home list | Member A |
-| 3 | View course progress | Click a course on home | Loads one course's grades and topics and switches to the progress page | Member B |
-| 4 | Update topic confidence | Green/yellow/red selector on a topic | Sets the topic's confidence level and saves | Member B |
-| 5 | Calculate current grade | Calculate in the pop-up | Validates marks and weights, computes the weighted grade, saves the assessments, updates the estimated grade | Member C |
-| 6 | Set target grade | Edit target on progress page | Updates the target letter grade and reports the average needed on the remaining weight | Member C |
-| 7 | Rank subjects by confidence | Subject Ranking button on home | Groups the user's courses by subject code (the letters of the course code, e.g. MAT), averages the confidence of every topic in each subject (green 100%, yellow 50%, red 0%), and ranks the subjects from most to least confident; tied subjects share a rank | Member C |
+| # | Use case | Trigger | What the interactor does | Owner | Status |
+|---|---|---|---|---|---|
+| 1 | Enrol in course | Enrol button on home | Validates code, name, target grade and topics; rejects duplicates; saves a new `Course` | Member A | Done (PR #3) |
+| 2 | View enrolled courses | Home page after login | Loads the user's courses with estimated vs target grade for the home list | Member A | Not started |
+| 3 | View course progress | Click a course on home | Loads one course's grades and topics and switches to the progress page | Member B | Done (PR #5) |
+| 4 | Update topic confidence | Colour selector on a topic | Sets the topic's confidence level and saves | Member B | Not started |
+| 5 | Calculate current grade | Calculate in the pop-up | Validates marks and weights, computes the weighted grade, saves the assessments, updates the estimated grade | Member C | Done (PR #4) |
+| 6 | Set target grade | Target selector on progress page | Updates the target grade and reports the average needed on the remaining weight | Member C | In progress |
+| 7 | Rank subjects by confidence | Subject Ranking button on home | Groups courses by subject code (the letters of the course code, e.g. MAT), averages every topic's confidence (green 100%, yellow 50%, red 0%) and ranks subjects from most to least confident; ties share a rank | Member C | In progress |
 
-Each member owns one screen area (home, progress page, calculator pop-up), which keeps pull requests from colliding. Possible replacements or future extensions: Add Topic, Drop Course.
+Each member owns one screen area (home, progress page, pop-ups) so pull requests do not collide. `Main`, `AppBuilder`, the entities, factories and data access objects are shared. Possible extensions: Add Topic, Drop Course.
 
-Shared by everyone: Main, AppBuilder, the entities and factories, and the data access objects.
+## User stories
 
-## User story: Rank subjects by confidence (use case 7)
+**Use cases 3 and 4: View and update course progress.** As a user, I can open one of my courses and update my confidence in its topics, so that I can see what I understand and which topics need more attention.
+> Mia selects CSC207 on the home page. The progress page shows her estimated grade, target grade and every topic with its confidence colour. She now feels confident with Clean Architecture, so she changes it from yellow to green; the change is saved and the page shows it straight away.
 
-As a user, I can know which category of courses I am good at, so that I know where to spend my study time.
+**Use case 5: Calculate current grade.** As a user, I can calculate my current grade from the marks I have received, so that I know how I am doing in a course.
+> Mia opens the grade calculator for CSC207 and enters Midterm 1 (78%, worth 15%) and Assignment 1 (92%, worth 10%). The calculator shows a current grade of 83.6% (A-) based on 25% of the course, saves the marks, and her progress page now shows an estimated grade of A-.
 
-Mia is enrolled in CSC207, CSC148, MAT137 and STA247. On the home page she presses Subject Ranking. The app groups her courses by subject (every MAT course together, every CSC course together, and so on) and ranks the subjects by her average confidence across all their topics, where a green topic counts as 100%, yellow as 50% and red as 0%. She sees Mathematics first at 83%, Computer Science second at 30% and Statistics last at 0%, so she decides to spend this weekend on Statistics.
+**Use case 6: Set target grade.** As a user, I can set a target grade for a course, so that I know what average I need on the rest of the course to reach it.
+> Mia raises her CSC207 target from A- to A. The progress page tells her she needs an average of 85.5% on the remaining 75% of the course, so she plans extra practice before the final exam.
 
-## User story: View and update course progress (use cases 3 and 4)
+**Use case 7: Rank subjects by confidence.** As a user, I can know which category of courses I am good at, so that I know where to spend my study time.
+> Mia is enrolled in CSC207, CSC148, MAT137 and STA247. She presses Subject Ranking on the home page and sees Mathematics first at 83%, Computer Science second at 30% and Statistics last at 0%, so she spends the weekend on Statistics.
 
-As a user, I can open one of my enrolled courses and update my confidence in its topics, so that I can see what I understand and which topics need more attention.
+## Architecture
 
-Mia selects CSC207 on the home page. The app opens the course progress page and shows her estimated grade, target grade and all the course topics with their current confidence colours. After reviewing the list, she changes Clean Architecture from yellow to green because she now feels confident with it. The app saves the change, and the progress page immediately shows the updated green confidence indicator.
-
-## Package structure
-
-```
-src/main/java
-├── app/
-│   ├── Main.java                      (shared; chain grows per use case)
-│   └── AppBuilder.java                (shared; one addXView / addXUseCase method each)
-├── entity/
-│   ├── User.java, UserFactory.java    (reused as-is)
-│   ├── Course.java                    code, name, targetGrade, topics, assessments
-│   ├── CourseFactory.java
-│   ├── Topic.java                     name + ConfidenceLevel
-│   ├── ConfidenceLevel.java           constants GREEN, YELLOW, RED; fromName(), getScore()
-│   ├── Subject.java                   a subject code and its courses; average confidence
-│   ├── Assessment.java                name, mark, weight
-│   └── LetterGrade.java               constants A+..F; fromPercentage(), fromLabel()
-├── use_case/
-│   ├── signup/ login/ logout/ change_password/      (existing)
-│   ├── enrol_course/
-│   ├── view_courses/
-│   ├── view_course_progress/
-│   ├── update_topic_confidence/
-│   ├── calculate_grade/
-│   ├── set_target_grade/
-│   └── rank_subjects/
-│        each: XInputBoundary, XInputData, XInteractor,
-│              XOutputBoundary, XOutputData, XCourseDataAccessInterface
-├── interface_adapter/
-│   ├── ViewManagerModel.java          (existing)
-│   ├── home/              HomeViewModel, HomeState          (replaces logged_in)
-│   ├── enrol_course/      Controller, Presenter, EnrolViewModel, EnrolState
-│   ├── view_courses/      Controller, Presenter
-│   ├── course_progress/   CourseProgressViewModel, CourseProgressState,
-│   │                      ViewCourseProgress Controller + Presenter
-│   ├── update_topic_confidence/   Controller, Presenter
-│   ├── calculate_grade/   Controller, Presenter, GradeCalculatorViewModel, State
-│   ├── set_target_grade/  Controller, Presenter
-│   └── rank_subjects/     Controller, Presenter, SubjectRankingViewModel, State
-├── data_access/
-│   ├── FileUserDataAccessObject.java  (existing)
-│   ├── DBCourseDataAccessObject.java  (API-backed; implements all six course interfaces)
-│   └── InMemoryCourseDataAccessObject.java  (for interactor tests)
-└── view/
-    ├── SignupView, LoginView, ViewManager, LabelTextPanel   (existing)
-    ├── HomeView.java                  course list + Enrol button (from LoggedInView)
-    ├── EnrolView.java                 course details form
-    ├── CourseProgressView.java        estimated/target grade, topic list with colour selectors
-    ├── GradeCalculatorDialog.java     JDialog pop-up
-    └── SubjectRankingDialog.java      JDialog pop-up with the subject ranking
-
-src/test/java/use_case/<each use case>/XInteractorTest.java
-```
-
-## The CA engine for each use case
-
-Every use case follows the same flow as the existing login example:
+Every use case follows the same flow as the starter's login example. Dependencies point inward: entities import nothing from other layers, use cases import only entities, interface adapters import only use cases, and presenters hand views plain strings so views never import entities.
 
 ```
 View -> Controller -> InputData -> InputBoundary (Interactor)
@@ -111,15 +55,45 @@ View -> Controller -> InputData -> InputBoundary (Interactor)
 View <- ViewModel <- Presenter <- OutputBoundary <- OutputData
 ```
 
-All dependencies point inward: entities import nothing from other layers, use cases import only entities, and interface adapters import only use cases.
+## Package structure
 
-## External API and data persistence
+```
+src/main/java
+├── app/               Main (chain grows per use case), AppBuilder (one addXView / addXUseCase each)
+├── entity/            User, UserFactory (reused); Course, CourseFactory, Topic, Assessment;
+│                      ConfidenceLevel (GREEN/YELLOW/RED, fromName(), getScore());
+│                      LetterGrade (A+..F, fromPercentage(), fromLabel());
+│                      Subject (a subject code and its courses; average confidence)
+├── use_case/          signup/ login/ logout/ change_password/ (existing)
+│                      enrol_course/ view_courses/ view_course_progress/
+│                      update_topic_confidence/ calculate_grade/ set_target_grade/ rank_subjects/
+│                      each: XInputBoundary, XInputData, XInteractor, XOutputBoundary,
+│                            XOutputData, XCourseDataAccessInterface
+├── interface_adapter/ ViewManagerModel (existing)
+│   ├── home/                     HomeViewModel, HomeState (replaces logged_in)
+│   ├── enrol_course/             Controller, Presenter, EnrolViewModel, EnrolState
+│   ├── view_courses/             Controller, Presenter
+│   ├── course_progress/          CourseProgressViewModel, CourseProgressState, TopicRow,
+│   │                             AssessmentRow, TargetMessageFormatter,
+│   │                             ViewCourseProgress Controller + Presenter
+│   ├── update_topic_confidence/  Controller, Presenter
+│   ├── calculate_grade/          Controller, Presenter, GradeCalculatorViewModel, State
+│   ├── set_target_grade/         Controller, Presenter
+│   └── rank_subjects/            Controller, Presenter, SubjectRankingViewModel, State
+├── data_access/       FileUserDataAccessObject (existing);
+│                      DBCourseDataAccessObject (API-backed; implements every course interface);
+│                      InMemoryCourseDataAccessObject (tests, and until the DB DAO exists)
+└── view/              SignupView, LoginView, ViewManager, LabelTextPanel (existing);
+                       HomeView (course list, Enrol and Subject Ranking buttons; from LoggedInView);
+                       EnrolView; CourseProgressView (grades, topic colours, target selector,
+                       Calculate Grade button); GradeCalculatorDialog; SubjectRankingDialog
 
-Planned: the course-provided API used by DBUserDataAccessObject on the db-user branch of the starter repo, storing each user's courses as one JSON object. This would satisfy both the external API and the persistence requirements.
+src/test/java/use_case/<each use case>/XInteractorTest.java
+```
 
-To confirm before building on it: the API's endpoints and whether it can store the nested course/topic/assessment data.
+## Data persistence and external API
 
-Planned JSON shape per user:
+Planned: the course-provided API used by `DBUserDataAccessObject` on the starter repo's `db-user` branch, storing each user's courses as one JSON object. This covers both the external API and persistence requirements. To confirm first: the API's endpoints and whether it can store nested course/topic/assessment data.
 
 ```json
 {
@@ -135,32 +109,24 @@ Planned JSON shape per user:
 }
 ```
 
-## Integration notes for use cases 5, 6 and 7
+## Integration notes
 
-Use cases 5 (Calculate current grade), 6 (Set target grade) and 7 (Rank subjects by confidence) are implemented and wired in AppBuilder (addCalculateGradeUseCase, addSetTargetGradeUseCase, addRankSubjectsUseCase). To try them before the progress page exists, run src/test/java/app/GradeToolsDemo.java from the IDE.
+**Use case 3 (done).** Selecting a course on home passes the username and course code to `ViewCourseProgressController`. The interactor checks the course code is present and the user is enrolled, loads the course through `ViewCourseProgressCourseDataAccessInterface`, and sends the code, name, target grade, current percentage, estimated grade, completed weight and topic rows to the presenter, which updates the shared `CourseProgressViewModel` and switches to the progress view. `CourseProgressView` renders strings only and uses the same controller for home navigation.
 
-What the other use cases need to do to connect them:
+**Use case 4 (to do).** Add the `update_topic_confidence` engine. A topic selector on `CourseProgressView` sends the username, course code, topic name and confidence name (GREEN, YELLOW or RED) to the controller. The interactor validates the course and topic, converts the name with `ConfidenceLevel.fromName()`, updates the `Topic` and saves through `UpdateTopicConfidenceCourseDataAccessInterface` (`getCourse`, `saveCourse`). The presenter reports success or failure as strings and refreshes the shared progress state so the new colour shows at once, keeping the username and course code in the view model. Wire it in `AppBuilder`.
 
-Course progress page (use case 3, Member B). interface_adapter/course_progress/ holds a minimal CourseProgressViewModel and CourseProgressState, which both presenters update. Extend these rather than creating a second view model. When a course is opened, fill the state's username, courseCode, targetGrade, estimatedGrade and assessments (the grade calculator starts from these rows). In CourseProgressView, add appBuilder.getTargetGradePanel() and make the Calculate Grade button call appBuilder.getGradeCalculatorDialog().open().
-
-Home page (Member A). Add a Subject Ranking button to HomeView that calls appBuilder.getSubjectRankingDialog().open(username) with the logged-in username.
-
-Course DAO. AppBuilder uses InMemoryCourseDataAccessObject for now, so courses are lost on restart. When DBCourseDataAccessObject is written, add CalculateGradeCourseDataAccessInterface and SetTargetGradeCourseDataAccessInterface (both getCourse(username, courseCode) and saveCourse(username, course)) and RankSubjectsCourseDataAccessInterface (getCourses(username)) to its implements list, and switch the field marked TODO in AppBuilder.
-
-Letter grades. The target grade selector reads CourseProgressViewModel.GRADE_OPTIONS, a copy of the LetterGrade labels so views do not import entities. TargetMessageFormatterTest fails if the two lists drift apart.
-
-## Integration notes for use cases 3 and 4
-
-Course progress page (use case 3, Member B). Use the existing view_course_progress controller, presenter, interactor, CourseProgressViewModel and CourseProgressState. When a course is selected on HomeView, pass the logged-in username and course code to ViewCourseProgressController. The interactor should validate that the course code is present and that the user is enrolled, load the Course through ViewCourseProgressCourseDataAccessInterface, and send the course code, name, target grade, current percentage, estimated grade, completed weight and topic rows to the presenter. The presenter updates the shared CourseProgressViewModel and switches the ViewManagerModel to the course progress view. CourseProgressView should render the state as strings and keep the home navigation wired through the same controller; it should not import entity classes.
-
-Update topic confidence (use case 4, Member B). Add the update_topic_confidence input boundary, input data, interactor, output boundary, output data, controller and presenter. A topic selector on CourseProgressView should send the logged-in username, current course code, topic name and selected confidence name (GREEN, YELLOW or RED) to the controller. The interactor validates the course and topic, converts the string with ConfidenceLevel.fromName(), updates the Topic entity, and saves the course through UpdateTopicConfidenceCourseDataAccessInterface. The presenter should report success or failure as strings and refresh the shared course-progress state so the changed colour is immediately visible. Add getCourse(username, courseCode) and saveCourse(username, course) to the DAO implementation, wire the controller and presenter in AppBuilder, and preserve the current course code and username in the progress view model while the selector is used.
+**Use cases 5, 6 and 7.** Wired with `addCalculateGradeUseCase`, `addSetTargetGradeUseCase` and `addRankSubjectsUseCase`. Run `src/test/java/app/GradeToolsDemo.java` from the IDE to try them without the full app. To connect them:
+- **Progress page (Member B):** when a course is opened, also fill the state's `username` and `assessments` (the calculator starts from these rows). Add `appBuilder.getTargetGradePanel()` to `CourseProgressView` and a Calculate Grade button that calls `appBuilder.getGradeCalculatorDialog().open()`.
+- **Home page (Member A):** add a Subject Ranking button that calls `appBuilder.getSubjectRankingDialog().open(username)`.
+- **Course DAO:** `AppBuilder` uses `InMemoryCourseDataAccessObject` for now, so courses are lost on restart. `DBCourseDataAccessObject` must implement `CalculateGradeCourseDataAccessInterface` and `SetTargetGradeCourseDataAccessInterface` (`getCourse`, `saveCourse`) and `RankSubjectsCourseDataAccessInterface` (`getCourses`); then switch the field marked TODO in `AppBuilder`.
+- **Letter grades:** the target selector reads `CourseProgressViewModel.GRADE_OPTIONS`, a copy of the `LetterGrade` labels so views do not import entities; `TargetMessageFormatterTest` fails if the two drift apart.
 
 ## Testing
 
-Each use case has an interactor unit test written like SignupInteractorTest: build the input data, use InMemoryCourseDataAccessObject and a fake presenter that asserts on the output data, then execute the interactor. Entities (Course, LetterGrade) get plain unit tests.
+Each use case has an interactor test written like `SignupInteractorTest`: build the input data, use `InMemoryCourseDataAccessObject` and a fake presenter that asserts on the output data, then execute the interactor. Entities (`Course`, `LetterGrade`, `Subject`) have plain unit tests, and presenters that format text have their own tests.
 
 ## Order of work
 
-1. One shared skeleton pull request: entities, CourseFactory, the in-memory DAO, empty views, and HomeView wired into AppBuilder.
-2. Each member branches per use case and adds only their own packages, one AppBuilder method, and one interface on the DAO's implements list.
+1. One shared skeleton pull request: entities, `CourseFactory`, the in-memory DAO, empty views, and `HomeView` wired into `AppBuilder`.
+2. Each member branches per use case and adds only their own packages, one `AppBuilder` method, and one interface on the DAO's `implements` list.
 3. Each use case pull request includes its interactor test and is reviewed by another team member before merging.
