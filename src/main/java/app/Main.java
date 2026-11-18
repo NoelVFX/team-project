@@ -10,11 +10,14 @@ public class Main {
                 .addSignupView()
                 .addLoggedInView()
                 .addCourseProgressView()
+                .addEnrolView()
                 .addSignupUseCase()
                 .addLoginUseCase()
                 .addLogoutUseCase()
                 .addChangePasswordUseCase()
                 .addViewCourseProgressUseCase()
+                .addEnrolCourseUseCase()
+                .addCalculateGradeUseCase()
                 .build();
 
         application.pack();

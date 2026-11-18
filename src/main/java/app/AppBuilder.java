@@ -7,6 +7,16 @@ import interface_adapter.ViewManagerModel;
 import interface_adapter.course_progress.CourseProgressViewModel;
 import interface_adapter.course_progress.ViewCourseProgressController;
 import interface_adapter.course_progress.ViewCourseProgressPresenter;
+import entity.CourseFactory;
+import entity.UserFactory;
+import interface_adapter.ViewManagerModel;
+import interface_adapter.calculate_grade.CalculateGradeController;
+import interface_adapter.calculate_grade.CalculateGradePresenter;
+import interface_adapter.calculate_grade.GradeCalculatorViewModel;
+import interface_adapter.course_progress.CourseProgressViewModel;
+import interface_adapter.enrol_course.EnrolCourseController;
+import interface_adapter.enrol_course.EnrolCoursePresenter;
+import interface_adapter.enrol_course.EnrolViewModel;
 import interface_adapter.logged_in.ChangePasswordController;
 import interface_adapter.logged_in.ChangePasswordPresenter;
 import interface_adapter.logged_in.LoggedInViewModel;
@@ -18,6 +28,12 @@ import interface_adapter.logout.LogoutPresenter;
 import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
+import use_case.calculate_grade.CalculateGradeInputBoundary;
+import use_case.calculate_grade.CalculateGradeInteractor;
+import use_case.calculate_grade.CalculateGradeOutputBoundary;
+import use_case.enrol_course.EnrolCourseInputBoundary;
+import use_case.enrol_course.EnrolCourseInteractor;
+import use_case.enrol_course.EnrolCourseOutputBoundary;
 import use_case.change_password.ChangePasswordInputBoundary;
 import use_case.change_password.ChangePasswordInteractor;
 import use_case.change_password.ChangePasswordOutputBoundary;
@@ -34,6 +50,8 @@ import use_case.view_course_progress.ViewCourseProgressInputBoundary;
 import use_case.view_course_progress.ViewCourseProgressInteractor;
 import use_case.view_course_progress.ViewCourseProgressOutputBoundary;
 import view.CourseProgressView;
+import view.EnrolView;
+import view.GradeCalculatorDialog;
 import view.LoggedInView;
 import view.LoginView;
 import view.SignupView;
@@ -56,6 +74,8 @@ public class AppBuilder {
     final FileUserDataAccessObject userDataAccessObject = new FileUserDataAccessObject("users.csv", userFactory);
 
     // DAO for each user's courses; kept in memory until the persistent version is written
+    final CourseFactory courseFactory = new CourseFactory();
+    // TODO: swap for the persistent course DAO once it exists; courses are lost on restart for now.
     final InMemoryCourseDataAccessObject courseDataAccessObject = new InMemoryCourseDataAccessObject();
 
     private SignupView signupView;
@@ -66,6 +86,13 @@ public class AppBuilder {
     private LoginView loginView;
     private CourseProgressViewModel courseProgressViewModel;
     private CourseProgressView courseProgressView;
+    private EnrolViewModel enrolViewModel;
+    private EnrolView enrolView;
+
+    // The main window. It is created early so that pop-ups can use it as their owner.
+    private final JFrame application = new JFrame("University Learning Progress Tracker");
+    private final CourseProgressViewModel courseProgressViewModel = new CourseProgressViewModel();
+    private GradeCalculatorDialog gradeCalculatorDialog;
 
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);
@@ -96,6 +123,28 @@ public class AppBuilder {
         courseProgressViewModel = new CourseProgressViewModel();
         courseProgressView = new CourseProgressView(courseProgressViewModel);
         cardPanel.add(courseProgressView, CourseProgressViewModel.VIEW_NAME);
+    public AppBuilder addEnrolView() {
+        enrolViewModel = new EnrolViewModel();
+        enrolView = new EnrolView(enrolViewModel);
+        cardPanel.add(enrolView, EnrolViewModel.VIEW_NAME);
+        return this;
+    }
+
+    /**
+     * Adds the Enrol Course Use Case to the application.
+     * Call after addLoggedInView and addEnrolView.
+     * @return this builder
+     */
+    public AppBuilder addEnrolCourseUseCase() {
+        final EnrolCourseOutputBoundary enrolCourseOutputBoundary =
+                new EnrolCoursePresenter(viewManagerModel, enrolViewModel);
+        final EnrolCourseInputBoundary enrolCourseInteractor = new EnrolCourseInteractor(
+                courseDataAccessObject, enrolCourseOutputBoundary, courseFactory);
+
+        final EnrolCourseController enrolCourseController =
+                new EnrolCourseController(enrolCourseInteractor, loggedInViewModel);
+        enrolView.setEnrolCourseController(enrolCourseController);
+        loggedInView.setEnrolCourseController(enrolCourseController);
         return this;
     }
 
@@ -167,8 +216,35 @@ public class AppBuilder {
         return this;
     }
 
+     * Adds the Calculate Grade Use Case (use case 5) to the application.
+     * The course progress page opens the pop-up with getGradeCalculatorDialog().open().
+     * @return this builder
+     */
+    public AppBuilder addCalculateGradeUseCase() {
+        final GradeCalculatorViewModel gradeCalculatorViewModel = new GradeCalculatorViewModel();
+        gradeCalculatorDialog = new GradeCalculatorDialog(application, gradeCalculatorViewModel,
+                courseProgressViewModel);
+
+        final CalculateGradeOutputBoundary calculateGradeOutputBoundary =
+                new CalculateGradePresenter(gradeCalculatorViewModel, courseProgressViewModel);
+        final CalculateGradeInputBoundary calculateGradeInteractor =
+                new CalculateGradeInteractor(courseDataAccessObject, calculateGradeOutputBoundary);
+
+        final CalculateGradeController calculateGradeController =
+                new CalculateGradeController(calculateGradeInteractor);
+        gradeCalculatorDialog.setCalculateGradeController(calculateGradeController);
+        return this;
+    }
+
+    public CourseProgressViewModel getCourseProgressViewModel() {
+        return courseProgressViewModel;
+    }
+
+    public GradeCalculatorDialog getGradeCalculatorDialog() {
+        return gradeCalculatorDialog;
+    }
+
     public JFrame build() {
-        final JFrame application = new JFrame("User Login Example");
         application.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         application.add(cardPanel);
