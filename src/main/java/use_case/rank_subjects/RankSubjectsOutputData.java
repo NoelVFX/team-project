@@ -30,8 +30,8 @@ public class RankSubjectsOutputData {
         private final int rank;
         private final String subjectCode;
         private final List<String> courseCodes;
-        private final boolean hasTopics;
         private final double averageConfidence;
+        private final String confidenceLevel;
         private final int greenTopics;
         private final int yellowTopics;
         private final int redTopics;
@@ -41,20 +41,21 @@ public class RankSubjectsOutputData {
          * @param rank the position in the ranking, starting at 1; tied subjects share a rank
          * @param subjectCode the subject code, such as "MAT"
          * @param courseCodes the codes of the user's courses in this subject
-         * @param hasTopics false if none of the courses has a topic
          * @param averageConfidence the average confidence from 0 to 1; 0 if there are no topics
+         * @param confidenceLevel the overall level ("GREEN", "YELLOW" or "RED"),
+         *                        or "" if none of the courses has a topic
          * @param greenTopics the number of GREEN topics
          * @param yellowTopics the number of YELLOW topics
          * @param redTopics the number of RED topics
          */
         public SubjectRank(int rank, String subjectCode, List<String> courseCodes,
-                           boolean hasTopics, double averageConfidence,
+                           double averageConfidence, String confidenceLevel,
                            int greenTopics, int yellowTopics, int redTopics) {
             this.rank = rank;
             this.subjectCode = subjectCode;
             this.courseCodes = Collections.unmodifiableList(new ArrayList<>(courseCodes));
-            this.hasTopics = hasTopics;
             this.averageConfidence = averageConfidence;
+            this.confidenceLevel = confidenceLevel;
             this.greenTopics = greenTopics;
             this.yellowTopics = yellowTopics;
             this.redTopics = redTopics;
@@ -72,8 +73,16 @@ public class RankSubjectsOutputData {
             return courseCodes;
         }
 
+        /**
+         * Returns whether any course of this subject has a topic.
+         * @return false if the subject has no topics, so it has no average
+         */
         public boolean hasTopics() {
-            return hasTopics;
+            return !confidenceLevel.isEmpty();
+        }
+
+        public String getConfidenceLevel() {
+            return confidenceLevel;
         }
 
         public double getAverageConfidence() {

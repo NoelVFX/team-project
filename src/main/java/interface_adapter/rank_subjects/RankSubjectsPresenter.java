@@ -14,10 +14,6 @@ import java.util.Map;
  */
 public class RankSubjectsPresenter implements RankSubjectsOutputBoundary {
 
-    /** An average at or above this is shown as GREEN. */
-    private static final double GREEN_THRESHOLD = 2.0 / 3.0;
-    /** An average at or above this, but below the green threshold, is shown as YELLOW. */
-    private static final double YELLOW_THRESHOLD = 1.0 / 3.0;
     private static final double PERCENT = 100;
 
     /** Friendly names for common subject codes. Unknown codes are shown on their own. */
@@ -25,6 +21,10 @@ public class RankSubjectsPresenter implements RankSubjectsOutputBoundary {
 
     private final SubjectRankingViewModel subjectRankingViewModel;
 
+    /**
+     * Creates the presenter.
+     * @param subjectRankingViewModel the view model of the subject ranking pop-up
+     */
     public RankSubjectsPresenter(SubjectRankingViewModel subjectRankingViewModel) {
         this.subjectRankingViewModel = subjectRankingViewModel;
     }
@@ -34,21 +34,18 @@ public class RankSubjectsPresenter implements RankSubjectsOutputBoundary {
         final List<SubjectRankingState.Row> rows = new ArrayList<>();
         for (RankSubjectsOutputData.SubjectRank subject : response.getSubjects()) {
             final String average;
-            final String colour;
             if (subject.hasTopics()) {
                 average = Math.round(subject.getAverageConfidence() * PERCENT) + "%";
-                colour = colourFor(subject.getAverageConfidence());
             }
             else {
                 average = "No topics";
-                colour = "";
             }
             rows.add(new SubjectRankingState.Row(
                     String.valueOf(subject.getRank()),
                     subjectLabel(subject.getSubjectCode()),
                     String.join(", ", subject.getCourseCodes()),
                     average,
-                    colour,
+                    subject.getConfidenceLevel(),
                     subject.getGreenTopics() + " green, " + subject.getYellowTopics()
                             + " yellow, " + subject.getRedTopics() + " red"));
         }
@@ -65,21 +62,6 @@ public class RankSubjectsPresenter implements RankSubjectsOutputBoundary {
         state.setRows(new ArrayList<>());
         state.setRankingError(error);
         subjectRankingViewModel.notifyStateChanged();
-    }
-
-    /**
-     * Returns the colour for an average confidence: GREEN, YELLOW or RED.
-     * @param averageConfidence the average confidence, from 0 to 1
-     * @return the name of the colour
-     */
-    static String colourFor(double averageConfidence) {
-        if (averageConfidence >= GREEN_THRESHOLD) {
-            return "GREEN";
-        }
-        if (averageConfidence >= YELLOW_THRESHOLD) {
-            return "YELLOW";
-        }
-        return "RED";
     }
 
     /**

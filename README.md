@@ -52,15 +52,18 @@ View -> Controller -> InputData -> InputBoundary (Interactor)
 View <- ViewModel <- Presenter <- OutputBoundary <- OutputData
 ```
 
+**Design pattern beyond the starter code: Strategy.** How topic confidence is scored for the subject ranking (use case 7) is a `ConfidenceScoringStrategy` in the entity layer. `StandardConfidenceScoring` counts green as 1, yellow as 0.5 and red as 0, and decides which colour an average counts as. `AppBuilder` injects it into `RankSubjectsInteractor`, so a different scoring rule is a new class rather than a change to the interactor (Open/Closed, Dependency Inversion); `RankSubjectsInteractorTest` ranks the same courses with two strategies to show this.
+
 ## Package structure
 
 ```
 src/main/java
 ├── app/               Main (chain grows per use case), AppBuilder (one addXView / addXUseCase each)
 ├── entity/            User, UserFactory (reused); Course, CourseFactory, Topic, Assessment;
-│                      ConfidenceLevel (GREEN/YELLOW/RED, fromName(), getScore());
+│                      ConfidenceLevel (GREEN/YELLOW/RED, fromName());
 │                      LetterGrade (A+..F, fromPercentage(), fromLabel());
-│                      Subject (a subject code and its courses; average confidence)
+│                      Subject (a subject code and its courses; average confidence);
+│                      ConfidenceScoringStrategy + StandardConfidenceScoring (Strategy)
 ├── use_case/          signup/ login/ logout/ change_password/ (existing)
 │                      enrol_course/ view_courses/ view_course_progress/
 │                      update_topic_confidence/ calculate_grade/ set_target_grade/ rank_subjects/

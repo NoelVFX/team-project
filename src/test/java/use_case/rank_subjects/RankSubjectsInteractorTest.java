@@ -3,7 +3,9 @@ package use_case.rank_subjects;
 import data_access.InMemoryCourseDataAccessObject;
 import entity.ConfidenceLevel;
 import entity.Course;
+import entity.ConfidenceScoringStrategy;
 import entity.LetterGrade;
+import entity.StandardConfidenceScoring;
 import entity.Topic;
 import org.junit.jupiter.api.Test;
 
@@ -26,6 +28,12 @@ class RankSubjectsInteractorTest {
 
     /** Runs the interactor for Paul and returns the ranking, failing the test on a fail view. */
     private static List<RankSubjectsOutputData.SubjectRank> rank(InMemoryCourseDataAccessObject repository) {
+        return rank(repository, new StandardConfidenceScoring());
+    }
+
+    /** Runs the interactor with the given scoring strategy and returns the ranking. */
+    private static List<RankSubjectsOutputData.SubjectRank> rank(InMemoryCourseDataAccessObject repository,
+                                                                ConfidenceScoringStrategy scoring) {
         final RankSubjectsOutputData[] result = new RankSubjectsOutputData[1];
         final RankSubjectsOutputBoundary presenter = new RankSubjectsOutputBoundary() {
             @Override
@@ -38,7 +46,8 @@ class RankSubjectsInteractorTest {
                 fail("Use case failure is unexpected: " + errorMessage);
             }
         };
-        new RankSubjectsInteractor(repository, presenter).execute(new RankSubjectsInputData("Paul"));
+        new RankSubjectsInteractor(repository, presenter, scoring)
+                .execute(new RankSubjectsInputData("Paul"));
         assertNotNull(result[0], "Success view was not prepared.");
         return result[0].getSubjects();
     }
@@ -62,6 +71,7 @@ class RankSubjectsInteractorTest {
         assertEquals(Arrays.asList("MAT137", "mat223"), first.getCourseCodes());
         assertTrue(first.hasTopics());
         assertEquals(0.875, first.getAverageConfidence(), DELTA);
+        assertEquals("GREEN", first.getConfidenceLevel());
         assertEquals(3, first.getGreenTopics());
         assertEquals(1, first.getYellowTopics());
         assertEquals(0, first.getRedTopics());
@@ -69,10 +79,12 @@ class RankSubjectsInteractorTest {
         assertEquals("CSC", ranking.get(1).getSubjectCode());
         assertEquals(2, ranking.get(1).getRank());
         assertEquals(0.5, ranking.get(1).getAverageConfidence(), DELTA);
+        assertEquals("YELLOW", ranking.get(1).getConfidenceLevel());
         // STA: 0
         assertEquals("STA", ranking.get(2).getSubjectCode());
         assertEquals(3, ranking.get(2).getRank());
         assertEquals(0, ranking.get(2).getAverageConfidence(), DELTA);
+        assertEquals("RED", ranking.get(2).getConfidenceLevel());
     }
 
     @Test
@@ -128,6 +140,33 @@ class RankSubjectsInteractorTest {
     }
 
     @Test
+    void anotherScoringStrategyChangesTheRankingTest() {
+        // A stricter strategy where yellow is worth nothing: only green topics count.
+        final ConfidenceScoringStrategy greenOnly = new ConfidenceScoringStrategy() {
+            @Override
+            public double score(ConfidenceLevel level) {
+                return level == ConfidenceLevel.GREEN ? 1 : 0;
+            }
+
+            @Override
+            public ConfidenceLevel levelFor(double averageScore) {
+                return averageScore >= 0.5 ? ConfidenceLevel.GREEN : ConfidenceLevel.RED;
+            }
+        };
+        final InMemoryCourseDataAccessObject repository = new InMemoryCourseDataAccessObject();
+        repository.saveCourse("Paul", course("MAT137", ConfidenceLevel.YELLOW, ConfidenceLevel.YELLOW));
+        repository.saveCourse("Paul", course("CSC207", ConfidenceLevel.GREEN, ConfidenceLevel.RED, ConfidenceLevel.RED));
+
+        // Standard scoring: MAT 0.5 beats CSC 0.33.
+        assertEquals("MAT", rank(repository).get(0).getSubjectCode());
+        // Green-only scoring: CSC 0.33 beats MAT 0, with no change to the interactor.
+        final List<RankSubjectsOutputData.SubjectRank> ranking = rank(repository, greenOnly);
+        assertEquals("CSC", ranking.get(0).getSubjectCode());
+        assertEquals("RED", ranking.get(0).getConfidenceLevel());
+        assertEquals(0, ranking.get(1).getAverageConfidence(), DELTA);
+    }
+
+    @Test
     void failureNoCoursesTest() {
         final RankSubjectsOutputBoundary presenter = new RankSubjectsOutputBoundary() {
             @Override
@@ -141,7 +180,8 @@ class RankSubjectsInteractorTest {
                         errorMessage);
             }
         };
-        new RankSubjectsInteractor(new InMemoryCourseDataAccessObject(), presenter)
+        new RankSubjectsInteractor(new InMemoryCourseDataAccessObject(), presenter,
+                new StandardConfidenceScoring())
                 .execute(new RankSubjectsInputData("Paul"));
     }
 }

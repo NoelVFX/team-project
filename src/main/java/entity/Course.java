@@ -176,6 +176,24 @@ public class Course {
     }
 
     /**
+     * Returns how much of the course grade is still to come.
+     * @return 100 minus the completed weight, from 0 to 100
+     */
+    public double getRemainingWeight() {
+        return MAX_PERCENTAGE - getCompletedWeight();
+    }
+
+    /**
+     * Returns whether the student's grade so far reaches the target grade.
+     * @return true if there are marks and the current percentage is at least the minimum
+     *         percentage of the target grade
+     */
+    public boolean isTargetReached() {
+        final OptionalDouble percentage = getCurrentPercentage();
+        return percentage.isPresent() && percentage.getAsDouble() >= targetGrade.getMinPercentage();
+    }
+
+    /**
      * Returns the student's grade so far: the average of the assessment marks, weighted
      * by how much each assessment is worth.
      * @return the current percentage, or empty if no assessments have been entered

@@ -20,10 +20,17 @@ public class GradeCalculatorViewModel {
         this.state = state;
     }
 
+    /**
+     * Registers a listener to be told when the state changes.
+     * @param listener the listener to add
+     */
     public void addListener(GradeCalculatorViewModelListener listener) {
         listeners.add(listener);
     }
 
+    /**
+     * Tells every listener that the state has changed.
+     */
     public void notifyStateChanged() {
         for (GradeCalculatorViewModelListener listener : listeners) {
             listener.stateChanged();

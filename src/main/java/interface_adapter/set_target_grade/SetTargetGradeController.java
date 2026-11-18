@@ -10,6 +10,10 @@ public class SetTargetGradeController {
 
     private final SetTargetGradeInputBoundary setTargetGradeUseCaseInteractor;
 
+    /**
+     * Creates the controller.
+     * @param setTargetGradeUseCaseInteractor the interactor of the Set Target Grade Use Case
+     */
     public SetTargetGradeController(SetTargetGradeInputBoundary setTargetGradeUseCaseInteractor) {
         this.setTargetGradeUseCaseInteractor = setTargetGradeUseCaseInteractor;
     }

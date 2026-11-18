@@ -8,6 +8,7 @@ import interface_adapter.course_progress.CourseProgressViewModel;
 import interface_adapter.course_progress.ViewCourseProgressController;
 import interface_adapter.course_progress.ViewCourseProgressPresenter;
 import entity.CourseFactory;
+import entity.StandardConfidenceScoring;
 import entity.UserFactory;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.calculate_grade.CalculateGradeController;
@@ -297,7 +298,8 @@ public class AppBuilder {
         final RankSubjectsOutputBoundary rankSubjectsOutputBoundary =
                 new RankSubjectsPresenter(subjectRankingViewModel);
         final RankSubjectsInputBoundary rankSubjectsInteractor =
-                new RankSubjectsInteractor(courseDataAccessObject, rankSubjectsOutputBoundary);
+                new RankSubjectsInteractor(courseDataAccessObject, rankSubjectsOutputBoundary,
+                        new StandardConfidenceScoring());
 
         final RankSubjectsController rankSubjectsController =
                 new RankSubjectsController(rankSubjectsInteractor);
