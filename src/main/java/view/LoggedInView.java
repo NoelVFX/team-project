@@ -7,16 +7,27 @@ package view;
     import interface_adapter.logged_in.LoggedInViewModel;
     import interface_adapter.logged_in.LoggedInViewModelListener;
     import interface_adapter.logout.LogoutController;
+    import interface_adapter.view_courses.CourseRow;
+    import interface_adapter.view_courses.ViewCoursesController;
 
+    import javax.swing.DefaultListModel;
     import javax.swing.JButton;
     import javax.swing.JLabel;
+    import javax.swing.JList;
     import javax.swing.JOptionPane;
     import javax.swing.JPanel;
+    import javax.swing.JScrollPane;
+    import javax.swing.ListSelectionModel;
     import javax.swing.JTextField;
     import javax.swing.SwingUtilities;
     import javax.swing.event.DocumentEvent;
     import javax.swing.event.DocumentListener;
     import java.awt.Component;
+    import java.awt.Dimension;
+    import java.awt.event.ComponentAdapter;
+    import java.awt.event.ComponentEvent;
+    import java.awt.event.MouseAdapter;
+    import java.awt.event.MouseEvent;
     import java.awt.event.ActionEvent;
     import java.awt.event.ActionListener;
 
@@ -33,14 +44,17 @@ package view;
         private LogoutController logoutController;
         private ViewCourseProgressController viewCourseProgressController;
         private EnrolCourseController enrolCourseController;
+        private ViewCoursesController viewCoursesController;
 
         private final JLabel username;
         private final JButton logOut;
         private final JTextField passwordInputField = new JTextField(15);
         private final JButton changePassword;
 
-        // Temporary way to open a course until the home page lists the enrolled courses.
-        private final JTextField courseCodeInputField = new JTextField(15);
+        // The user's enrolled courses (use case 2). Selecting one opens its progress page (use case 3).
+        private final DefaultListModel<CourseRow> courseListModel = new DefaultListModel<>();
+        private final JList<CourseRow> courseList = new JList<>(courseListModel);
+        private final JLabel courseListMessage = new JLabel();
         private final JButton viewProgress;
 
         public LoggedInView(LoggedInViewModel loggedInViewModel) {
@@ -109,20 +123,37 @@ package view;
                 }
             });
 
-            final LabelTextPanel courseCodeInfo = new LabelTextPanel(
-                    new JLabel("Course code"),
-                    courseCodeInputField
-            );
+            final JLabel coursesTitle = new JLabel("My Courses");
+            coursesTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+            courseListMessage.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            courseList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            courseList.setVisibleRowCount(6);
+            final JScrollPane courseScrollPane = new JScrollPane(courseList);
+            courseScrollPane.setPreferredSize(new Dimension(520, 140));
 
             viewProgress = new JButton("View Progress");
-            courseCodeInfo.add(viewProgress);
+            viewProgress.setAlignmentX(Component.CENTER_ALIGNMENT);
+            viewProgress.addActionListener(evt -> openSelectedCourse());
 
-            viewProgress.addActionListener(evt ->
-                    viewCourseProgressController.execute(
-                            loggedInViewModel.getState().getUsername(),
-                            courseCodeInputField.getText()
-                    )
-            );
+            // Double-clicking a course also opens its progress page.
+            courseList.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent evt) {
+                    if (evt.getClickCount() == 2) {
+                        openSelectedCourse();
+                    }
+                }
+            });
+
+            // Reload the course list every time the home page is shown: after logging in,
+            // after enrolling and after coming back from a course's progress page.
+            this.addComponentListener(new ComponentAdapter() {
+                @Override
+                public void componentShown(ComponentEvent evt) {
+                    refreshCourses();
+                }
+            });
 
             this.add(title);
             this.add(usernameInfo);
@@ -130,7 +161,10 @@ package view;
             this.add(passwordInfo);
             this.add(passwordErrorField);
             this.add(buttons);
-            this.add(courseCodeInfo);
+            this.add(coursesTitle);
+            this.add(courseListMessage);
+            this.add(courseScrollPane);
+            this.add(viewProgress);
         }
 
         /**
@@ -157,6 +191,29 @@ package view;
             this.viewCourseProgressController = viewCourseProgressController;
         }
 
+        public void setViewCoursesController(ViewCoursesController viewCoursesController) {
+            this.viewCoursesController = viewCoursesController;
+        }
+
+        private void refreshCourses() {
+            if (viewCoursesController != null) {
+                viewCoursesController.execute(loggedInViewModel.getState().getUsername());
+            }
+        }
+
+        private void openSelectedCourse() {
+            final CourseRow selected = courseList.getSelectedValue();
+            if (selected == null) {
+                JOptionPane.showMessageDialog(this, "Please choose a course.");
+            }
+            else {
+                viewCourseProgressController.execute(
+                        loggedInViewModel.getState().getUsername(),
+                        selected.getCourseCode()
+                );
+            }
+        }
+
         public void setEnrolCourseController(
                 EnrolCourseController enrolCourseController) {
             this.enrolCourseController = enrolCourseController;
@@ -169,6 +226,13 @@ package view;
         public void stateChanged() {
             final LoggedInState state = loggedInViewModel.getState();
             username.setText(state.getUsername());
+
+            courseListModel.clear();
+            for (CourseRow row : state.getCourses()) {
+                courseListModel.addElement(row);
+            }
+            courseListMessage.setText(state.getCourseListMessage());
+            viewProgress.setEnabled(!courseListModel.isEmpty());
         }
 
         /**

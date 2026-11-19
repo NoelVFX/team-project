@@ -34,6 +34,8 @@ import interface_adapter.logout.LogoutPresenter;
 import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
+import interface_adapter.view_courses.ViewCoursesController;
+import interface_adapter.view_courses.ViewCoursesPresenter;
 import use_case.calculate_grade.CalculateGradeInputBoundary;
 import use_case.calculate_grade.CalculateGradeInteractor;
 import use_case.calculate_grade.CalculateGradeOutputBoundary;
@@ -61,6 +63,9 @@ import use_case.signup.SignupOutputBoundary;
 import use_case.view_course_progress.ViewCourseProgressInputBoundary;
 import use_case.view_course_progress.ViewCourseProgressInteractor;
 import use_case.view_course_progress.ViewCourseProgressOutputBoundary;
+import use_case.view_courses.ViewCoursesInputBoundary;
+import use_case.view_courses.ViewCoursesInteractor;
+import use_case.view_courses.ViewCoursesOutputBoundary;
 import view.CourseProgressView;
 import view.EnrolView;
 import view.GradeCalculatorDialog;
@@ -212,6 +217,24 @@ public class AppBuilder {
 
         final LogoutController logoutController = new LogoutController(logoutInteractor);
         loggedInView.setLogoutController(logoutController);
+        return this;
+    }
+
+    /**
+     * Adds the View Enrolled Courses Use Case (use case 2) to the application.
+     * The home page reloads its course list each time it is shown.
+     * Call after addLoggedInView.
+     * @return this builder
+     */
+    public AppBuilder addViewCoursesUseCase() {
+        final ViewCoursesOutputBoundary viewCoursesOutputBoundary =
+                new ViewCoursesPresenter(loggedInViewModel);
+        final ViewCoursesInputBoundary viewCoursesInteractor =
+                new ViewCoursesInteractor(courseDataAccessObject, viewCoursesOutputBoundary);
+
+        final ViewCoursesController viewCoursesController =
+                new ViewCoursesController(viewCoursesInteractor);
+        loggedInView.setViewCoursesController(viewCoursesController);
         return this;
     }
 
