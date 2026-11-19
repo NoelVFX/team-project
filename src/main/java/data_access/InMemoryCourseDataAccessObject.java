@@ -6,6 +6,7 @@
     import use_case.rank_subjects.RankSubjectsCourseDataAccessInterface;
     import use_case.set_target_grade.SetTargetGradeCourseDataAccessInterface;
     import use_case.view_course_progress.ViewCourseProgressCourseDataAccessInterface;
+    import use_case.view_courses.ViewCoursesCourseDataAccessInterface;
 
     import java.util.ArrayList;
     import java.util.HashMap;
@@ -23,7 +24,8 @@
             EnrolCourseDataAccessInterface,
             CalculateGradeCourseDataAccessInterface,
             SetTargetGradeCourseDataAccessInterface,
-            RankSubjectsCourseDataAccessInterface {
+            RankSubjectsCourseDataAccessInterface,
+            ViewCoursesCourseDataAccessInterface {
 
         /** Maps a username to that user's courses by upper-case course code. */
         private final Map<String, Map<String, Course>> coursesByUser = new HashMap<>();

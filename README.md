@@ -21,7 +21,7 @@ Signup, login, logout and change password are reused from the starter code. Each
 | # | Use case | Trigger | What the interactor does | Owner | Status |
 |---|---|---|---|---|---|
 | 1 | Enrol in course | Enrol button on home | Validates code, name, target grade and topics; rejects duplicates; saves a new `Course` | Member A | Done (PR #3) |
-| 2 | View enrolled courses | Home page after login | Loads the user's courses with estimated vs target grade for the home list | Member A | Not started |
+| 2 | View enrolled courses | Home page after login | Loads the user's courses with estimated vs target grade for the home list | Member A | Done |
 | 3 | View course progress | Click a course on home | Loads one course's grades and topics and switches to the progress page | Member B | Done (PR #5) |
 | 4 | Update topic confidence | Colour selector on a topic | Sets the topic's confidence level and saves | Member B | Not started |
 | 5 | Calculate current grade | Calculate in the pop-up | Validates marks and weights, computes the weighted grade, saves the assessments, updates the estimated grade | Member C | Done (PR #4) |
@@ -110,6 +110,8 @@ Planned: the course-provided API used by `DBUserDataAccessObject` on the starter
 ```
 
 ## Integration notes
+
+**Use case 2 (done).** `LoggedInView` (the home page until `HomeView` replaces it) reloads its course list every time it is shown, i.e. after logging in, after enrolling and after returning from a progress page, by calling `ViewCoursesController` with the logged-in username. The interactor loads the user's courses through `ViewCoursesCourseDataAccessInterface` (`getCourses`) and sends each course's code, name, target grade, current percentage, estimated grade and whether the target is reached. `ViewCoursesPresenter` turns these into `CourseRow`s (for example `CSC207 - Software Design | Estimated: A- (83.6%) | Target: A | Below target`) on `LoggedInState`, plus a message such as "3 enrolled courses" or a hint to enrol when the list is empty. Selecting a course and pressing View Progress, or double-clicking it, runs use case 3. Wired with `addViewCoursesUseCase`.
 
 **Use case 3 (done).** Selecting a course on home passes the username and course code to `ViewCourseProgressController`. The interactor checks the course code is present and the user is enrolled, loads the course through `ViewCourseProgressCourseDataAccessInterface`, and sends the code, name, target grade, current percentage, estimated grade, completed weight and topic rows to the presenter, which updates the shared `CourseProgressViewModel` and switches to the progress view. `CourseProgressView` renders strings only and uses the same controller for home navigation.
 
