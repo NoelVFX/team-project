@@ -22,13 +22,13 @@ class RankSubjectsPresenterTest {
 
         final RankSubjectsOutputData output = new RankSubjectsOutputData(Arrays.asList(
                 new RankSubjectsOutputData.SubjectRank(1, "MAT", Arrays.asList("MAT137", "MAT223"),
-                        true, 0.875, 3, 1, 0),
+                        0.875, "GREEN", 3, 1, 0),
                 new RankSubjectsOutputData.SubjectRank(2, "XYZ", Collections.singletonList("XYZ100"),
-                        true, 0.5, 0, 2, 0),
+                        0.5, "YELLOW", 0, 2, 0),
                 new RankSubjectsOutputData.SubjectRank(3, "STA", Collections.singletonList("STA247"),
-                        true, 0.25, 0, 1, 1),
+                        0.25, "RED", 0, 1, 1),
                 new RankSubjectsOutputData.SubjectRank(4, "ECO", Collections.singletonList("ECO101"),
-                        false, 0, 0, 0, 0)));
+                        0, "", 0, 0, 0)));
         new RankSubjectsPresenter(viewModel).prepareSuccessView(output);
 
         final List<SubjectRankingState.Row> rows = viewModel.getState().getRows();
@@ -48,16 +48,6 @@ class RankSubjectsPresenterTest {
 
         assertNull(viewModel.getState().getRankingError());
         assertEquals(1, notifications[0]);
-    }
-
-    @Test
-    void colourThresholds() {
-        assertEquals("GREEN", RankSubjectsPresenter.colourFor(1.0));
-        assertEquals("GREEN", RankSubjectsPresenter.colourFor(0.75));
-        assertEquals("YELLOW", RankSubjectsPresenter.colourFor(0.5));
-        assertEquals("YELLOW", RankSubjectsPresenter.colourFor(0.34));
-        assertEquals("RED", RankSubjectsPresenter.colourFor(0.25));
-        assertEquals("RED", RankSubjectsPresenter.colourFor(0.0));
     }
 
     @Test

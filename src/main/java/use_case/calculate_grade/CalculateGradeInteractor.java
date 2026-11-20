@@ -20,6 +20,11 @@ public class CalculateGradeInteractor implements CalculateGradeInputBoundary {
     private final CalculateGradeCourseDataAccessInterface courseDataAccessObject;
     private final CalculateGradeOutputBoundary calculateGradePresenter;
 
+    /**
+     * Creates the interactor.
+     * @param courseDataAccessInterface where the course is loaded from and saved to
+     * @param calculateGradeOutputBoundary the presenter to report the result to
+     */
     public CalculateGradeInteractor(
             CalculateGradeCourseDataAccessInterface courseDataAccessInterface,
             CalculateGradeOutputBoundary calculateGradeOutputBoundary) {
@@ -36,31 +41,13 @@ public class CalculateGradeInteractor implements CalculateGradeInputBoundary {
                     "You are not enrolled in " + inputData.getCourseCode() + ".");
             return;
         }
-
-        final List<Assessment> assessments = new ArrayList<>();
-        final Set<String> seenNames = new HashSet<>();
-        int rowNumber = 0;
-        for (CalculateGradeInputData.AssessmentRow row : inputData.getRows()) {
-            rowNumber++;
-            final Assessment assessment;
-            try {
-                assessment = toAssessment(row);
-            }
-            catch (IllegalArgumentException ex) {
-                calculateGradePresenter.prepareFailView(
-                        "Row " + rowNumber + ": " + ex.getMessage() + ".");
-                return;
-            }
-            if (!seenNames.add(assessment.getName().toLowerCase(Locale.ROOT))) {
-                calculateGradePresenter.prepareFailView("Row " + rowNumber + ": \""
-                        + assessment.getName() + "\" is entered more than once.");
-                return;
-            }
-            assessments.add(assessment);
+        if (inputData.getRows().isEmpty() && course.getAssessments().isEmpty()) {
+            calculateGradePresenter.prepareFailView("Enter at least one assessment.");
+            return;
         }
 
         try {
-            course.setAssessments(assessments);
+            course.setAssessments(toAssessments(inputData.getRows()));
         }
         catch (IllegalArgumentException ex) {
             calculateGradePresenter.prepareFailView(ex.getMessage() + ".");
@@ -69,6 +56,34 @@ public class CalculateGradeInteractor implements CalculateGradeInputBoundary {
         courseDataAccessObject.saveCourse(inputData.getUsername(), course);
 
         calculateGradePresenter.prepareSuccessView(toOutputData(course));
+    }
+
+    /**
+     * Turns the rows typed into the calculator into assessments.
+     * @throws IllegalArgumentException naming the first invalid row, if any row is invalid
+     *                                  or two rows have the same name
+     */
+    private static List<Assessment> toAssessments(
+            List<CalculateGradeInputData.AssessmentRow> rows) {
+        final List<Assessment> assessments = new ArrayList<>();
+        final Set<String> seenNames = new HashSet<>();
+        int rowNumber = 0;
+        for (CalculateGradeInputData.AssessmentRow row : rows) {
+            rowNumber++;
+            final Assessment assessment;
+            try {
+                assessment = toAssessment(row);
+            }
+            catch (IllegalArgumentException ex) {
+                throw new IllegalArgumentException("Row " + rowNumber + ": " + ex.getMessage(), ex);
+            }
+            if (!seenNames.add(assessment.getName().toLowerCase(Locale.ROOT))) {
+                throw new IllegalArgumentException("Row " + rowNumber + ": \""
+                        + assessment.getName() + "\" is entered more than once");
+            }
+            assessments.add(assessment);
+        }
+        return assessments;
     }
 
     private static Assessment toAssessment(CalculateGradeInputData.AssessmentRow row) {
@@ -90,33 +105,29 @@ public class CalculateGradeInteractor implements CalculateGradeInputBoundary {
             return Double.parseDouble(trimmed);
         }
         catch (NumberFormatException ex) {
-            throw new IllegalArgumentException(fieldName + " must be a number");
+            throw new IllegalArgumentException(fieldName + " must be a number", ex);
         }
     }
 
     private static CalculateGradeOutputData toOutputData(Course course) {
-        final List<String> names = new ArrayList<>();
-        final List<Double> marks = new ArrayList<>();
-        final List<Double> weights = new ArrayList<>();
+        final List<CalculateGradeOutputData.AssessmentData> assessments = new ArrayList<>();
         for (Assessment assessment : course.getAssessments()) {
-            names.add(assessment.getName());
-            marks.add(assessment.getMark());
-            weights.add(assessment.getWeight());
+            assessments.add(new CalculateGradeOutputData.AssessmentData(
+                    assessment.getName(), assessment.getMark(), assessment.getWeight()));
         }
         final OptionalDouble percentage = course.getCurrentPercentage();
         final OptionalDouble requiredAverage = course.getRequiredAverageForTarget();
-        final boolean targetReached = percentage.isPresent()
-                && percentage.getAsDouble() >= course.getTargetGrade().getMinPercentage();
         return new CalculateGradeOutputData(
                 course.getCode(),
                 percentage.isPresent(),
                 percentage.orElse(0),
                 course.getEstimatedGrade().map(grade -> grade.getLabel()).orElse(""),
                 course.getCompletedWeight(),
+                course.getRemainingWeight(),
                 course.getTargetGrade().getLabel(),
                 !requiredAverage.isPresent(),
-                targetReached,
+                course.isTargetReached(),
                 requiredAverage.orElse(0),
-                names, marks, weights);
+                assessments);
     }
 }

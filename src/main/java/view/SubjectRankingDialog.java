@@ -33,7 +33,12 @@ public class SubjectRankingDialog extends JDialog implements SubjectRankingViewM
 
     private static final String[] COLUMNS =
         {"Rank", "Subject", "Courses", "Average confidence", "Topics"};
+    private static final int[] COLUMN_WIDTHS = {40, 170, 150, 120, 170};
     private static final int AVERAGE_COLUMN = 3;
+    private static final int TABLE_WIDTH = 650;
+    private static final int TABLE_HEIGHT = 200;
+    private static final int PADDING = 10;
+    private static final int GAP = 8;
 
     private static final Color GREEN = new Color(200, 235, 200);
     private static final Color YELLOW = new Color(255, 240, 170);
@@ -65,14 +70,12 @@ public class SubjectRankingDialog extends JDialog implements SubjectRankingViewM
         table.setFillsViewportHeight(true);
         table.setRowSelectionAllowed(false);
         table.getTableHeader().setReorderingAllowed(false);
-        table.getColumnModel().getColumn(0).setPreferredWidth(40);
-        table.getColumnModel().getColumn(1).setPreferredWidth(170);
-        table.getColumnModel().getColumn(2).setPreferredWidth(150);
-        table.getColumnModel().getColumn(AVERAGE_COLUMN).setPreferredWidth(120);
-        table.getColumnModel().getColumn(4).setPreferredWidth(170);
+        for (int column = 0; column < COLUMN_WIDTHS.length; column++) {
+            table.getColumnModel().getColumn(column).setPreferredWidth(COLUMN_WIDTHS[column]);
+        }
         table.getColumnModel().getColumn(AVERAGE_COLUMN).setCellRenderer(new ColourRenderer());
         final JScrollPane tableScroll = new JScrollPane(table);
-        tableScroll.setPreferredSize(new Dimension(650, 200));
+        tableScroll.setPreferredSize(new Dimension(TABLE_WIDTH, TABLE_HEIGHT));
 
         final JButton close = new JButton("Close");
         close.addActionListener(evt -> setVisible(false));
@@ -83,8 +86,8 @@ public class SubjectRankingDialog extends JDialog implements SubjectRankingViewM
         bottom.add(messageLabel, BorderLayout.NORTH);
         bottom.add(buttons, BorderLayout.SOUTH);
 
-        final JPanel content = new JPanel(new BorderLayout(0, 8));
-        content.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        final JPanel content = new JPanel(new BorderLayout(0, GAP));
+        content.setBorder(BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING));
         content.add(new JLabel("Your subjects, from most to least confident. "
                 + "Green topics count as 100%, yellow as 50% and red as 0%."), BorderLayout.NORTH);
         content.add(tableScroll, BorderLayout.CENTER);
@@ -95,6 +98,10 @@ public class SubjectRankingDialog extends JDialog implements SubjectRankingViewM
         pack();
     }
 
+    /**
+     * Sets the controller that runs the Rank Subjects Use Case.
+     * @param rankSubjectsController the controller
+     */
     public void setRankSubjectsController(RankSubjectsController rankSubjectsController) {
         this.rankSubjectsController = rankSubjectsController;
     }

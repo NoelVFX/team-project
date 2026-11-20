@@ -29,8 +29,9 @@ class CalculateGradePresenterTest {
         });
 
         final CalculateGradeOutputData output = new CalculateGradeOutputData("CSC207", true, 83.3333,
-                "A-", 30, "A-", false, true, 78.5714,
-                Arrays.asList("Midterm", "Assignment 1"), Arrays.asList(80.0, 90.0), Arrays.asList(20.0, 10.0));
+                "A-", 30, 70, "A-", false, true, 78.5714, Arrays.asList(
+                        new CalculateGradeOutputData.AssessmentData("Midterm", 80, 20),
+                        new CalculateGradeOutputData.AssessmentData("Assignment 1", 90, 10)));
         new CalculateGradePresenter(calculatorViewModel, progressViewModel).prepareSuccessView(output);
 
         final GradeCalculatorState calculatorState = calculatorViewModel.getState();
@@ -40,6 +41,9 @@ class CalculateGradePresenterTest {
 
         final CourseProgressState progressState = progressViewModel.getState();
         assertEquals("A-", progressState.getEstimatedGrade());
+        // The progress page's percentage and graded weight are updated too, in its own format.
+        assertEquals("83.3%", progressState.getCurrentPercentage());
+        assertEquals("30.0% of the course graded", progressState.getCompletedWeight());
         assertEquals("You need an average of 78.6% on the remaining 70% to reach A-.",
                 progressState.getTargetMessage());
         final List<AssessmentRow> rows = progressState.getAssessments();
@@ -61,12 +65,13 @@ class CalculateGradePresenterTest {
                 new AssessmentRow("Midterm", "80", "20")));
 
         final CalculateGradeOutputData output = new CalculateGradeOutputData("CSC207", false, 0, "",
-                0, "A", false, false, 85, java.util.Collections.emptyList(),
-                java.util.Collections.emptyList(), java.util.Collections.emptyList());
+                0, 100, "A", false, false, 85, java.util.Collections.emptyList());
         new CalculateGradePresenter(calculatorViewModel, progressViewModel).prepareSuccessView(output);
 
         assertEquals("All saved marks were cleared.", calculatorViewModel.getState().getResultMessage());
         assertEquals(CalculateGradePresenter.NO_GRADE, progressViewModel.getState().getEstimatedGrade());
+        assertEquals(CalculateGradePresenter.NO_MARKS, progressViewModel.getState().getCurrentPercentage());
+        assertEquals("0.0% of the course graded", progressViewModel.getState().getCompletedWeight());
         assertEquals(0, progressViewModel.getState().getAssessments().size());
         assertEquals("You need an average of 85% on the remaining 100% to reach A.",
                 progressViewModel.getState().getTargetMessage());

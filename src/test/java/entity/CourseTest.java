@@ -92,4 +92,24 @@ class CourseTest {
         assertThrows(IllegalArgumentException.class, () -> new Assessment("Quiz", 101, 10));
         assertThrows(IllegalArgumentException.class, () -> new Assessment("Quiz", 50, 0));
     }
+
+    @Test
+    void remainingWeightIsWhatIsLeftOfTheCourse() {
+        final Course course = newCourse();
+        assertEquals(100, course.getRemainingWeight(), DELTA);
+        course.setAssessments(Arrays.asList(new Assessment("Midterm", 80, 30)));
+        assertEquals(70, course.getRemainingWeight(), DELTA);
+    }
+
+    @Test
+    void targetReachedComparesCurrentGradeWithTarget() {
+        final Course course = newCourse();
+        // No marks yet: the target cannot be reached.
+        assertFalse(course.isTargetReached());
+        // A- needs 80%.
+        course.setAssessments(Arrays.asList(new Assessment("Midterm", 80, 30)));
+        assertTrue(course.isTargetReached());
+        course.setAssessments(Arrays.asList(new Assessment("Midterm", 79.9, 30)));
+        assertFalse(course.isTargetReached());
+    }
 }

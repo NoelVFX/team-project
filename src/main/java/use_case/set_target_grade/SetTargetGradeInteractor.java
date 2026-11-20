@@ -11,11 +11,14 @@ import java.util.OptionalDouble;
  */
 public class SetTargetGradeInteractor implements SetTargetGradeInputBoundary {
 
-    private static final double MAX_PERCENTAGE = 100;
-
     private final SetTargetGradeCourseDataAccessInterface courseDataAccessObject;
     private final SetTargetGradeOutputBoundary setTargetGradePresenter;
 
+    /**
+     * Creates the interactor.
+     * @param courseDataAccessInterface where the course is loaded from and saved to
+     * @param setTargetGradeOutputBoundary the presenter to report the result to
+     */
     public SetTargetGradeInteractor(
             SetTargetGradeCourseDataAccessInterface courseDataAccessInterface,
             SetTargetGradeOutputBoundary setTargetGradeOutputBoundary) {
@@ -47,18 +50,16 @@ public class SetTargetGradeInteractor implements SetTargetGradeInputBoundary {
 
         final OptionalDouble requiredAverage = course.getRequiredAverageForTarget();
         final OptionalDouble percentage = course.getCurrentPercentage();
-        final boolean targetReached = percentage.isPresent()
-                && percentage.getAsDouble() >= targetGrade.getMinPercentage();
         final SetTargetGradeOutputData outputData = new SetTargetGradeOutputData(
                 course.getCode(),
                 targetGrade.getLabel(),
                 targetGrade.getMinPercentage(),
-                MAX_PERCENTAGE - course.getCompletedWeight(),
+                course.getRemainingWeight(),
                 !requiredAverage.isPresent(),
                 requiredAverage.orElse(0),
                 percentage.orElse(0),
                 course.getEstimatedGrade().map(grade -> grade.getLabel()).orElse(""),
-                targetReached);
+                course.isTargetReached());
         setTargetGradePresenter.prepareSuccessView(outputData);
     }
 }

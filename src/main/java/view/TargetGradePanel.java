@@ -31,6 +31,11 @@ public class TargetGradePanel extends JPanel implements CourseProgressViewModelL
             new JComboBox<>(CourseProgressViewModel.GRADE_OPTIONS.toArray(new String[0]));
     private final JLabel targetMessage = new JLabel(" ");
 
+    /**
+     * Creates the panel.
+     * @param courseProgressViewModel the view model of the course progress page,
+     *                                which says which course is open
+     */
     public TargetGradePanel(CourseProgressViewModel courseProgressViewModel) {
         this.courseProgressViewModel = courseProgressViewModel;
         this.courseProgressViewModel.addListener(this);
@@ -56,6 +61,10 @@ public class TargetGradePanel extends JPanel implements CourseProgressViewModelL
         add(targetMessage);
     }
 
+    /**
+     * Sets the controller that runs the Set Target Grade Use Case.
+     * @param setTargetGradeController the controller
+     */
     public void setSetTargetGradeController(SetTargetGradeController setTargetGradeController) {
         this.setTargetGradeController = setTargetGradeController;
     }

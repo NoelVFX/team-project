@@ -10,6 +10,10 @@ public class RankSubjectsController {
 
     private final RankSubjectsInputBoundary rankSubjectsUseCaseInteractor;
 
+    /**
+     * Creates the controller.
+     * @param rankSubjectsUseCaseInteractor the interactor of the Rank Subjects Use Case
+     */
     public RankSubjectsController(RankSubjectsInputBoundary rankSubjectsUseCaseInteractor) {
         this.rankSubjectsUseCaseInteractor = rankSubjectsUseCaseInteractor;
     }

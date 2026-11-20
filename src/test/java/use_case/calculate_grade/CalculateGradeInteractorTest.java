@@ -64,7 +64,12 @@ class CalculateGradeInteractorTest {
                 assertFalse(outputData.isCourseCompleted());
                 // (80 * 100 - 2500) / 70 = 78.57...
                 assertEquals(78.571428, outputData.getRequiredAverage(), DELTA);
-                assertEquals(Arrays.asList("Midterm", "Assignment 1"), outputData.getAssessmentNames());
+                assertEquals(70, outputData.getRemainingWeight(), DELTA);
+                assertEquals(2, outputData.getAssessments().size());
+                assertEquals("Midterm", outputData.getAssessments().get(0).getName());
+                assertEquals(80, outputData.getAssessments().get(0).getMark(), DELTA);
+                assertEquals(20, outputData.getAssessments().get(0).getWeight(), DELTA);
+                assertEquals("Assignment 1", outputData.getAssessments().get(1).getName());
 
                 final Course saved = repository.getCourse("Paul", "CSC207");
                 assertEquals(2, saved.getAssessments().size());
@@ -152,6 +157,14 @@ class CalculateGradeInteractorTest {
     }
 
     @Test
+    void failureNoRowsAndNothingSavedTest() {
+        final CalculateGradeInputData inputData = new CalculateGradeInputData("Paul", "CSC207",
+                Collections.emptyList());
+        new CalculateGradeInteractor(repositoryWithCourse(), expectFailure("Enter at least one assessment."))
+                .execute(inputData);
+    }
+
+    @Test
     void failureCourseNotFoundTest() {
         final CalculateGradeInputData inputData = new CalculateGradeInputData("Paul", "MAT137",
                 Collections.singletonList(row("Midterm", "80", "20")));
@@ -175,7 +188,8 @@ class CalculateGradeInteractorTest {
                 assertFalse(outputData.isTargetReached());
                 // A- needs 80 on the whole course.
                 assertEquals(80, outputData.getRequiredAverage(), DELTA);
-                assertTrue(outputData.getAssessmentNames().isEmpty());
+                assertEquals(100, outputData.getRemainingWeight(), DELTA);
+                assertTrue(outputData.getAssessments().isEmpty());
             }
 
             @Override
