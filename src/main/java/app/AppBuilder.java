@@ -8,8 +8,6 @@ import interface_adapter.course_progress.CourseProgressViewModel;
 import interface_adapter.course_progress.ViewCourseProgressController;
 import interface_adapter.course_progress.ViewCourseProgressPresenter;
 import entity.CourseFactory;
-import entity.UserFactory;
-import interface_adapter.ViewManagerModel;
 import interface_adapter.calculate_grade.CalculateGradeController;
 import interface_adapter.calculate_grade.CalculateGradePresenter;
 import interface_adapter.calculate_grade.GradeCalculatorViewModel;
@@ -18,7 +16,8 @@ import interface_adapter.rank_subjects.RankSubjectsPresenter;
 import interface_adapter.rank_subjects.SubjectRankingViewModel;
 import interface_adapter.set_target_grade.SetTargetGradeController;
 import interface_adapter.set_target_grade.SetTargetGradePresenter;
-import interface_adapter.course_progress.CourseProgressViewModel;
+import interface_adapter.update_topic_confidence.UpdateTopicConfidenceController;
+import interface_adapter.update_topic_confidence.UpdateTopicConfidencePresenter;
 import interface_adapter.enrol_course.EnrolCourseController;
 import interface_adapter.enrol_course.EnrolCoursePresenter;
 import interface_adapter.enrol_course.EnrolViewModel;
@@ -42,6 +41,9 @@ import use_case.rank_subjects.RankSubjectsOutputBoundary;
 import use_case.set_target_grade.SetTargetGradeInputBoundary;
 import use_case.set_target_grade.SetTargetGradeInteractor;
 import use_case.set_target_grade.SetTargetGradeOutputBoundary;
+import use_case.update_topic_confidence.UpdateTopicConfidenceInputBoundary;
+import use_case.update_topic_confidence.UpdateTopicConfidenceInteractor;
+import use_case.update_topic_confidence.UpdateTopicConfidenceOutputBoundary;
 import use_case.enrol_course.EnrolCourseInputBoundary;
 import use_case.enrol_course.EnrolCourseInteractor;
 import use_case.enrol_course.EnrolCourseOutputBoundary;
@@ -234,6 +236,21 @@ public class AppBuilder {
     }
 
     /**
+     * Adds the Update Topic Confidence Use Case to the application.
+     * @return this builder
+     */
+    public AppBuilder addUpdateTopicConfidenceUseCase() {
+        final UpdateTopicConfidenceOutputBoundary outputBoundary =
+                new UpdateTopicConfidencePresenter(courseProgressViewModel);
+        final UpdateTopicConfidenceInputBoundary interactor =
+                new UpdateTopicConfidenceInteractor(courseDataAccessObject, outputBoundary);
+        final UpdateTopicConfidenceController controller =
+                new UpdateTopicConfidenceController(interactor);
+        courseProgressView.setUpdateTopicConfidenceController(controller);
+        return this;
+    }
+
+    /**
      * Adds the Calculate Grade Use Case (use case 5) to the application.
      * The course progress page opens the pop-up with getGradeCalculatorDialog().open().
      * @return this builder
@@ -242,6 +259,7 @@ public class AppBuilder {
         final GradeCalculatorViewModel gradeCalculatorViewModel = new GradeCalculatorViewModel();
         gradeCalculatorDialog = new GradeCalculatorDialog(application, gradeCalculatorViewModel,
                 courseProgressViewModel);
+        courseProgressView.setOpenGradeCalculatorAction(() -> gradeCalculatorDialog.open());
 
         final CalculateGradeOutputBoundary calculateGradeOutputBoundary =
                 new CalculateGradePresenter(gradeCalculatorViewModel, courseProgressViewModel);

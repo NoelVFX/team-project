@@ -9,6 +9,7 @@ import java.util.List;
  */
 public class ViewCourseProgressOutputData {
 
+    private final String username;
     private final String courseCode;
     private final String courseName;
     private final String targetGrade;
@@ -33,6 +34,27 @@ public class ViewCourseProgressOutputData {
                                         boolean hasMarks, double currentPercentage,
                                         String estimatedGrade, double completedWeight,
                                         List<TopicData> topics) {
+        this("", courseCode, courseName, targetGrade, hasMarks, currentPercentage,
+                estimatedGrade, completedWeight, topics);
+    }
+
+    /**
+     * Creates output data while preserving the logged-in user for later actions on the page.
+     * @param username the logged-in user
+     * @param courseCode the course code
+     * @param courseName the course name
+     * @param targetGrade the label of the target letter grade, such as "A-"
+     * @param hasMarks whether any assessment marks have been entered for the course
+     * @param currentPercentage the grade so far as a percentage; 0 if there are no marks
+     * @param estimatedGrade the label of the estimated letter grade; empty if there are no marks
+     * @param completedWeight how much of the course grade has been completed, from 0 to 100
+     * @param topics the topics of the course, in order
+     */
+    public ViewCourseProgressOutputData(String username, String courseCode, String courseName,
+                                        String targetGrade, boolean hasMarks,
+                                        double currentPercentage, String estimatedGrade,
+                                        double completedWeight, List<TopicData> topics) {
+        this.username = username;
         this.courseCode = courseCode;
         this.courseName = courseName;
         this.targetGrade = targetGrade;
@@ -41,6 +63,10 @@ public class ViewCourseProgressOutputData {
         this.estimatedGrade = estimatedGrade;
         this.completedWeight = completedWeight;
         this.topics = Collections.unmodifiableList(new ArrayList<>(topics));
+    }
+
+    public String getUsername() {
+        return username;
     }
 
     public String getCourseCode() {

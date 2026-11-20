@@ -5,6 +5,7 @@
     import use_case.enrol_course.EnrolCourseDataAccessInterface;
     import use_case.rank_subjects.RankSubjectsCourseDataAccessInterface;
     import use_case.set_target_grade.SetTargetGradeCourseDataAccessInterface;
+    import use_case.update_topic_confidence.UpdateTopicConfidenceCourseDataAccessInterface;
     import use_case.view_course_progress.ViewCourseProgressCourseDataAccessInterface;
 
     import java.util.ArrayList;
@@ -23,6 +24,7 @@
             EnrolCourseDataAccessInterface,
             CalculateGradeCourseDataAccessInterface,
             SetTargetGradeCourseDataAccessInterface,
+            UpdateTopicConfidenceCourseDataAccessInterface,
             RankSubjectsCourseDataAccessInterface {
 
         /** Maps a username to that user's courses by upper-case course code. */

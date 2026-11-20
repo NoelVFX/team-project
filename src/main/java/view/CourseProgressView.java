@@ -5,6 +5,7 @@ import interface_adapter.course_progress.CourseProgressViewModel;
 import interface_adapter.course_progress.CourseProgressViewModelListener;
 import interface_adapter.course_progress.TopicRow;
 import interface_adapter.course_progress.ViewCourseProgressController;
+import interface_adapter.update_topic_confidence.UpdateTopicConfidenceController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,6 +25,8 @@ public class CourseProgressView extends JPanel implements CourseProgressViewMode
 
     private final CourseProgressViewModel courseProgressViewModel;
     private ViewCourseProgressController viewCourseProgressController;
+    private UpdateTopicConfidenceController updateTopicConfidenceController;
+    private Runnable openGradeCalculatorAction = () -> { };
 
     private final JLabel title = new JLabel("Course Progress");
     private final JLabel estimatedGrade = new JLabel();
@@ -54,8 +57,11 @@ public class CourseProgressView extends JPanel implements CourseProgressViewMode
         topicScroll.setPreferredSize(TOPIC_LIST_SIZE);
 
         final JPanel buttons = new JPanel();
+        final JButton calculateGrade = new JButton("Calculate Grade");
         buttons.add(back);
+        buttons.add(calculateGrade);
         back.addActionListener(evt -> viewCourseProgressController.switchToHomeView());
+        calculateGrade.addActionListener(evt -> openGradeCalculatorAction.run());
 
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.setBorder(BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING));
@@ -69,6 +75,15 @@ public class CourseProgressView extends JPanel implements CourseProgressViewMode
 
     public void setViewCourseProgressController(ViewCourseProgressController viewCourseProgressController) {
         this.viewCourseProgressController = viewCourseProgressController;
+    }
+
+    public void setUpdateTopicConfidenceController(
+            UpdateTopicConfidenceController updateTopicConfidenceController) {
+        this.updateTopicConfidenceController = updateTopicConfidenceController;
+    }
+
+    public void setOpenGradeCalculatorAction(Runnable openGradeCalculatorAction) {
+        this.openGradeCalculatorAction = openGradeCalculatorAction;
     }
 
     /**
@@ -119,6 +134,17 @@ public class CourseProgressView extends JPanel implements CourseProgressViewMode
         row.add(swatch);
         row.add(new JLabel(topic.getName()));
         row.add(new JLabel("(" + topic.getDescription() + ")"));
+
+        final JComboBox<String> confidenceSelector = new JComboBox<>(
+                new String[]{"GREEN", "YELLOW", "RED"});
+        confidenceSelector.setSelectedItem(topic.getConfidence());
+        confidenceSelector.addActionListener(evt -> updateTopicConfidenceController.execute(
+                courseProgressViewModel.getState().getUsername(),
+                courseProgressViewModel.getState().getCourseCode(),
+                topic.getName(),
+                (String) confidenceSelector.getSelectedItem()));
+        row.add(confidenceSelector);
+
         row.setAlignmentX(Component.LEFT_ALIGNMENT);
         row.setMaximumSize(new Dimension(Integer.MAX_VALUE, row.getPreferredSize().height));
         return row;

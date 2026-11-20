@@ -16,6 +16,7 @@ public class Main {
                 .addLogoutUseCase()
                 .addChangePasswordUseCase()
                 .addViewCourseProgressUseCase()
+                .addUpdateTopicConfidenceUseCase()
                 .addEnrolCourseUseCase()
                 .addCalculateGradeUseCase()
                 .addSetTargetGradeUseCase()

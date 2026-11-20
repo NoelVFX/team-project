@@ -34,6 +34,7 @@ public class ViewCourseProgressPresenter implements ViewCourseProgressOutputBoun
     @Override
     public void prepareSuccessView(ViewCourseProgressOutputData outputData) {
         final CourseProgressState state = new CourseProgressState();
+        state.setUsername(outputData.getUsername());
         state.setCourseCode(outputData.getCourseCode());
         state.setCourseName(outputData.getCourseName());
         state.setTargetGrade(outputData.getTargetGrade());
