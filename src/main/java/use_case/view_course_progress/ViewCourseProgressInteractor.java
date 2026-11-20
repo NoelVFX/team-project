@@ -36,11 +36,11 @@ public class ViewCourseProgressInteractor implements ViewCourseProgressInputBoun
         }
         else {
             final Course course = courseDataAccessObject.getCourse(username, courseCode);
-            courseProgressPresenter.prepareSuccessView(toOutputData(course));
+            courseProgressPresenter.prepareSuccessView(toOutputData(username, course));
         }
     }
 
-    private ViewCourseProgressOutputData toOutputData(Course course) {
+    private ViewCourseProgressOutputData toOutputData(String username, Course course) {
         final List<ViewCourseProgressOutputData.TopicData> topics = new ArrayList<>();
         for (Topic topic : course.getTopics()) {
             topics.add(new ViewCourseProgressOutputData.TopicData(
@@ -51,6 +51,7 @@ public class ViewCourseProgressInteractor implements ViewCourseProgressInputBoun
         final Optional<LetterGrade> estimatedGrade = course.getEstimatedGrade();
 
         return new ViewCourseProgressOutputData(
+                username,
                 course.getCode(),
                 course.getName(),
                 course.getTargetGrade().getLabel(),
