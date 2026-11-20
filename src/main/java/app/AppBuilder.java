@@ -1,7 +1,9 @@
 package app;
 
-import data_access.FileUserDataAccessObject;
-import data_access.InMemoryCourseDataAccessObject;
+import com.mongodb.client.MongoDatabase;
+import data_access.MongoConfig;
+import data_access.MongoCourseDataAccessObject;
+import data_access.MongoUserDataAccessObject;
 import entity.UserFactory;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.course_progress.CourseProgressViewModel;
@@ -86,16 +88,16 @@ public class AppBuilder {
     final ViewManagerModel viewManagerModel = new ViewManagerModel();
     ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
 
-    // set which data access implementation to use, can be any
-    // of the classes from the data_access package
+    // Users and courses are stored in MongoDB. The connection is read from the MONGODB_URI and
+    // MONGODB_DATABASE environment variables (see MongoConfig and the README).
+    // Throws IllegalStateException if the database cannot be reached.
+    final MongoDatabase database = MongoConfig.connectFromEnvironment();
 
-    // DAO version using local file storage
-    final FileUserDataAccessObject userDataAccessObject = new FileUserDataAccessObject("users.csv", userFactory);
+    final MongoUserDataAccessObject userDataAccessObject =
+            new MongoUserDataAccessObject(database, userFactory);
 
-    // DAO for each user's courses; kept in memory until the persistent version is written
     final CourseFactory courseFactory = new CourseFactory();
-    // TODO: swap for the persistent course DAO once it exists; courses are lost on restart for now.
-    final InMemoryCourseDataAccessObject courseDataAccessObject = new InMemoryCourseDataAccessObject();
+    final MongoCourseDataAccessObject courseDataAccessObject = new MongoCourseDataAccessObject(database);
 
     private SignupView signupView;
     private SignupViewModel signupViewModel;

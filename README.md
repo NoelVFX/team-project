@@ -80,9 +80,11 @@ src/main/java
 │   ├── calculate_grade/          Controller, Presenter, GradeCalculatorViewModel, State
 │   ├── set_target_grade/         Controller, Presenter
 │   └── rank_subjects/            Controller, Presenter, SubjectRankingViewModel, State
-├── data_access/       FileUserDataAccessObject (existing);
-│                      DBCourseDataAccessObject (API-backed; implements every course interface);
-│                      InMemoryCourseDataAccessObject (tests, and until the DB DAO exists)
+├── data_access/       MongoConfig (connects using MONGODB_URI / MONGODB_DATABASE);
+│                      MongoUserDataAccessObject (users); MongoCourseDataAccessObject (implements
+│                      every course interface) + CourseDocumentMapper (Course <-> document);
+│                      InMemoryCourseDataAccessObject (interactor tests);
+│                      FileUserDataAccessObject (starter code, no longer used by the app)
 └── view/              SignupView, LoginView, ViewManager, LabelTextPanel (existing);
                        HomeView (course list, Enrol and Subject Ranking buttons; from LoggedInView);
                        EnrolView; CourseProgressView (grades, topic colours, target selector,
@@ -91,23 +93,36 @@ src/main/java
 src/test/java/use_case/<each use case>/XInteractorTest.java
 ```
 
-## Data persistence and external API
+## Data persistence: MongoDB
 
-Planned: the course-provided API used by `DBUserDataAccessObject` on the starter repo's `db-user` branch, storing each user's courses as one JSON object. This covers both the external API and persistence requirements. To confirm first: the API's endpoints and whether it can store nested course/topic/assessment data.
+Users and courses are stored in MongoDB, so everything is still there after a restart and every team member can share one database.
+
+- `users` collection: one document per user, `{"_id": "mia", "password": "..."}`.
+- `courses` collection: one document per course, with a unique index on `(username, codeKey)` so a user cannot enrol in the same course twice:
 
 ```json
 {
-  "courses": [
-    {
-      "code": "CSC207",
-      "name": "Software Design",
-      "targetGrade": "A",
-      "topics": [{"name": "Clean Architecture", "confidence": "YELLOW"}],
-      "assessments": [{"name": "Midterm 1", "mark": 78.0, "weight": 15.0}]
-    }
-  ]
+  "username": "mia",
+  "codeKey": "CSC207",
+  "code": "CSC207",
+  "name": "Software Design",
+  "targetGrade": "A",
+  "topics": [{"name": "Clean Architecture", "confidence": "YELLOW"}],
+  "assessments": [{"name": "Midterm 1", "mark": 78.0, "weight": 15.0}]
 }
 ```
+
+`MongoCourseDataAccessObject` is an **Adapter** (structural pattern): it adapts the MongoDB driver's collections and documents to the `*CourseDataAccessInterface`s the interactors already use, so switching from the in-memory DAO did not change any use case. `CourseDocumentMapper` does the conversion in both directions.
+
+### Setup (each team member)
+
+1. **Get a database.** Either:
+   - **MongoDB Atlas (recommended, shared by the team):** create a free M0 cluster at mongodb.com/atlas, add a database user, and under *Network Access* allow your IP (or `0.0.0.0/0` for the course). Copy the connection string from *Connect → Drivers*; it looks like `mongodb+srv://<user>:<password>@cluster0.xxxxx.mongodb.net/`.
+   - **Local MongoDB:** `brew tap mongodb/brew && brew install mongodb-community && brew services start mongodb-community` (macOS). No configuration is needed; the app uses `mongodb://localhost:27017` by default.
+2. **Tell the app where it is** (Atlas only). In IntelliJ: *Run → Edit Configurations → Main → Environment variables*, add `MONGODB_URI=<your connection string>`. Optionally set `MONGODB_DATABASE` (default `learning_tracker`). Never commit the connection string: it contains a password.
+3. **Reload Maven** in IntelliJ so the `mongodb-driver-sync` dependency is downloaded, then run `Main`. If the database cannot be reached, the app shows a "Database error" dialog after about 5 seconds.
+
+Passwords are stored as plain text, as in the starter code's `users.csv`; hashing them would need a change to the login and change-password interactors.
 
 ## Integration notes
 
@@ -120,12 +135,12 @@ Planned: the course-provided API used by `DBUserDataAccessObject` on the starter
 **Use cases 5, 6 and 7.** Wired with `addCalculateGradeUseCase`, `addSetTargetGradeUseCase` and `addRankSubjectsUseCase`. Run `src/test/java/app/GradeToolsDemo.java` from the IDE to try them without the full app. To connect them:
 - **Progress page (Member B):** when a course is opened, also fill the state's `username` and `assessments` (the calculator starts from these rows). Add `appBuilder.getTargetGradePanel()` to `CourseProgressView` and a Calculate Grade button that calls `appBuilder.getGradeCalculatorDialog().open()`.
 - **Home page (Member A):** add a Subject Ranking button that calls `appBuilder.getSubjectRankingDialog().open(username)`.
-- **Course DAO:** `AppBuilder` uses `InMemoryCourseDataAccessObject` for now, so courses are lost on restart. `DBCourseDataAccessObject` must implement `CalculateGradeCourseDataAccessInterface` and `SetTargetGradeCourseDataAccessInterface` (`getCourse`, `saveCourse`) and `RankSubjectsCourseDataAccessInterface` (`getCourses`); then switch the field marked TODO in `AppBuilder`.
+- **Course DAO:** `AppBuilder` uses `MongoCourseDataAccessObject`. A new use case that needs course data adds its `XCourseDataAccessInterface` to the `implements` list of both `MongoCourseDataAccessObject` and `InMemoryCourseDataAccessObject` (the latter is used by interactor tests).
 - **Letter grades:** the target selector reads `CourseProgressViewModel.GRADE_OPTIONS`, a copy of the `LetterGrade` labels so views do not import entities; `TargetMessageFormatterTest` fails if the two drift apart.
 
 ## Testing
 
-Each use case has an interactor test written like `SignupInteractorTest`: build the input data, use `InMemoryCourseDataAccessObject` and a fake presenter that asserts on the output data, then execute the interactor. Entities (`Course`, `LetterGrade`, `Subject`) have plain unit tests, and presenters that format text have their own tests.
+Each use case has an interactor test written like `SignupInteractorTest`: build the input data, use `InMemoryCourseDataAccessObject` and a fake presenter that asserts on the output data, then execute the interactor. Entities (`Course`, `LetterGrade`, `Subject`) have plain unit tests, and presenters that format text have their own tests. `CourseDocumentMapperTest` checks the MongoDB document format without a server; `MongoDataAccessObjectTest` runs the DAOs against a real server in a separate `learning_tracker_test` database (deleted afterwards) and is skipped when no server is reachable.
 
 ## Order of work
 
