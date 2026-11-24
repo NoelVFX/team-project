@@ -1,5 +1,6 @@
 package use_case.view_course_progress;
 
+import entity.Assessment;
 import entity.Course;
 import entity.LetterGrade;
 import entity.Topic;
@@ -50,6 +51,11 @@ public class ViewCourseProgressInteractor implements ViewCourseProgressInputBoun
         final OptionalDouble currentPercentage = course.getCurrentPercentage();
         final Optional<LetterGrade> estimatedGrade = course.getEstimatedGrade();
 
+        final List<ViewCourseProgressOutputData.AssessmentData> assessments = new ArrayList<>();
+        for (Assessment assessment : course.getAssessments()) {
+            assessments.add(new ViewCourseProgressOutputData.AssessmentData(
+                    assessment.getName(), assessment.getMark(), assessment.getWeight()));
+        }
         return new ViewCourseProgressOutputData(
                 username,
                 course.getCode(),
@@ -59,7 +65,8 @@ public class ViewCourseProgressInteractor implements ViewCourseProgressInputBoun
                 currentPercentage.orElse(0),
                 estimatedGrade.isPresent() ? estimatedGrade.get().getLabel() : "",
                 course.getCompletedWeight(),
-                topics);
+                topics,
+                assessments);
     }
 
     @Override

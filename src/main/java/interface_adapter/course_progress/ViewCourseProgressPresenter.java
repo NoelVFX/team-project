@@ -56,6 +56,15 @@ public class ViewCourseProgressPresenter implements ViewCourseProgressOutputBoun
         }
         state.setTopics(topics);
 
+        // The grade calculator starts from these rows, so saved marks are not lost on recalculation.
+        final List<AssessmentRow> assessments = new ArrayList<>();
+        for (ViewCourseProgressOutputData.AssessmentData assessment : outputData.getAssessments()) {
+            assessments.add(new AssessmentRow(assessment.getName(),
+                    TargetMessageFormatter.formatNumber(assessment.getMark()),
+                    TargetMessageFormatter.formatNumber(assessment.getWeight())));
+        }
+        state.setAssessments(assessments);
+
         courseProgressViewModel.setState(state);
         courseProgressViewModel.notifyStateChanged();
 

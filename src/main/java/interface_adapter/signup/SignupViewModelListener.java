@@ -1,5 +1,8 @@
 package interface_adapter.signup;
 
+/**
+ * Listens for changes to the Signup View Model.
+ */
 public interface SignupViewModelListener {
 
   /**

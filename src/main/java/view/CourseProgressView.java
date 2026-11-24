@@ -6,9 +6,23 @@ import interface_adapter.course_progress.CourseProgressViewModelListener;
 import interface_adapter.course_progress.TopicRow;
 import interface_adapter.course_progress.ViewCourseProgressController;
 import interface_adapter.update_topic_confidence.UpdateTopicConfidenceController;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 
 /**
  * The View showing the learning progress of one course: the estimated and
@@ -21,6 +35,7 @@ public class CourseProgressView extends JPanel implements CourseProgressViewMode
     private static final Color RED = new Color(218, 54, 51);
     private static final int PADDING = 12;
     private static final int SWATCH_SIZE = 14;
+    private static final float TITLE_FONT_SIZE = 18f;
     private static final Dimension TOPIC_LIST_SIZE = new Dimension(380, 180);
 
     private final CourseProgressViewModel courseProgressViewModel;
@@ -33,13 +48,15 @@ public class CourseProgressView extends JPanel implements CourseProgressViewMode
     private final JLabel targetGrade = new JLabel();
     private final JLabel completedWeight = new JLabel();
     private final JPanel topicList = new JPanel();
+    /** Holds the target grade panel (use case 6) once AppBuilder provides it. */
+    private final JPanel targetSlot = new JPanel(new BorderLayout());
     private final JButton back = new JButton("Back");
 
     public CourseProgressView(CourseProgressViewModel courseProgressViewModel) {
         this.courseProgressViewModel = courseProgressViewModel;
         this.courseProgressViewModel.addListener(this);
 
-        title.setFont(title.getFont().deriveFont(Font.BOLD, 18f));
+        title.setFont(title.getFont().deriveFont(Font.BOLD, TITLE_FONT_SIZE));
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         final JPanel grades = new JPanel(new GridLayout(0, 2, PADDING, 4));
@@ -68,6 +85,7 @@ public class CourseProgressView extends JPanel implements CourseProgressViewMode
         this.add(title);
         this.add(Box.createVerticalStrut(PADDING));
         this.add(grades);
+        this.add(targetSlot);
         this.add(Box.createVerticalStrut(PADDING));
         this.add(topicScroll);
         this.add(buttons);
@@ -84,6 +102,16 @@ public class CourseProgressView extends JPanel implements CourseProgressViewMode
 
     public void setOpenGradeCalculatorAction(Runnable openGradeCalculatorAction) {
         this.openGradeCalculatorAction = openGradeCalculatorAction;
+    }
+
+    /**
+     * Shows the panel for setting the target grade (use case 6) under the grades.
+     * @param targetGradePanel the panel to show
+     */
+    public void setTargetGradePanel(JComponent targetGradePanel) {
+        targetSlot.removeAll();
+        targetSlot.add(targetGradePanel, BorderLayout.CENTER);
+        targetSlot.revalidate();
     }
 
     /**
