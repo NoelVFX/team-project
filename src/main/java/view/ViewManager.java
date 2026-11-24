@@ -3,8 +3,8 @@ package view;
 import interface_adapter.ViewManagerModel;
 
 import interface_adapter.ViewManagerModelListener;
-import javax.swing.*;
-import java.awt.*;
+import java.awt.CardLayout;
+import javax.swing.JPanel;
 
 
 /**

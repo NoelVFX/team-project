@@ -1,5 +1,6 @@
 package view;
 
+    import java.util.function.Consumer;
     import interface_adapter.course_progress.ViewCourseProgressController;
     import interface_adapter.enrol_course.EnrolCourseController;
     import interface_adapter.logged_in.ChangePasswordController;
@@ -46,12 +47,15 @@ package view;
         private ViewCoursesController viewCoursesController;
 
         private final JLabel username;
+        private Consumer<String> openSubjectRankingAction = user -> { };
         private final JButton logOut;
         private final JTextField passwordInputField = new JTextField(15);
         private final JButton changePassword;
 
         // The user's enrolled courses (use case 2). Selecting one opens its progress page (use case 3).
         private final DefaultListModel<CourseRow> courseListModel = new DefaultListModel<>();
+        private static final int VISIBLE_COURSES = 6;
+        private static final Dimension COURSE_LIST_SIZE = new Dimension(520, 140);
         private final JList<CourseRow> courseList = new JList<>(courseListModel);
         private final JLabel courseListMessage = new JLabel();
         private final JButton viewProgress;
@@ -82,6 +86,11 @@ package view;
             final JButton enrol = new JButton("Enrol");
             buttons.add(enrol);
             enrol.addActionListener(evt -> enrolCourseController.switchToEnrolView());
+
+            final JButton subjectRanking = new JButton("Subject Ranking");
+            buttons.add(subjectRanking);
+            subjectRanking.addActionListener(evt ->
+                    openSubjectRankingAction.accept(loggedInViewModel.getState().getUsername()));
 
             logOut.addActionListener(this);
 
@@ -127,9 +136,9 @@ package view;
             courseListMessage.setAlignmentX(Component.CENTER_ALIGNMENT);
 
             courseList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-            courseList.setVisibleRowCount(6);
+            courseList.setVisibleRowCount(VISIBLE_COURSES);
             final JScrollPane courseScrollPane = new JScrollPane(courseList);
-            courseScrollPane.setPreferredSize(new Dimension(520, 140));
+            courseScrollPane.setPreferredSize(COURSE_LIST_SIZE);
 
             viewProgress = new JButton("View Progress");
             viewProgress.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -211,6 +220,14 @@ package view;
                         selected.getCourseCode()
                 );
             }
+        }
+
+        /**
+         * Sets what the Subject Ranking button does (use case 7).
+         * @param openSubjectRankingAction called with the logged-in username
+         */
+        public void setOpenSubjectRankingAction(Consumer<String> openSubjectRankingAction) {
+            this.openSubjectRankingAction = openSubjectRankingAction;
         }
 
         public void setEnrolCourseController(

@@ -34,7 +34,7 @@ public class LogoutPresenter implements LogoutOutputBoundary {
         // the empty string.
 
         final LoggedInState loggedInState = loggedInViewModel.getState();
-        String last_username = loggedInState.getUsername();
+        final String lastUsername = loggedInState.getUsername();
         loggedInState.setUsername("");
         this.loggedInViewModel.notifyStateChanged();
         // 1. get the LoggedInState out of the appropriate View Model,
@@ -42,7 +42,7 @@ public class LogoutPresenter implements LogoutOutputBoundary {
         // 3. notify so that the View that is listening is updated.
 
         final LoginState loginState = loginViewModel.getState();
-        loginState.setUsername(last_username);
+        loginState.setUsername(lastUsername);
         loginState.setPassword("");
         this.loginViewModel.notifyStateChanged();
         // 1. get the LoginState out of the appropriate View Model,

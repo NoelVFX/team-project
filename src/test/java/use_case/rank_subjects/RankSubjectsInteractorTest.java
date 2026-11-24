@@ -155,7 +155,8 @@ class RankSubjectsInteractorTest {
         };
         final InMemoryCourseDataAccessObject repository = new InMemoryCourseDataAccessObject();
         repository.saveCourse("Paul", course("MAT137", ConfidenceLevel.YELLOW, ConfidenceLevel.YELLOW));
-        repository.saveCourse("Paul", course("CSC207", ConfidenceLevel.GREEN, ConfidenceLevel.RED, ConfidenceLevel.RED));
+        repository.saveCourse("Paul",
+                course("CSC207", ConfidenceLevel.GREEN, ConfidenceLevel.RED, ConfidenceLevel.RED));
 
         // Standard scoring: MAT 0.5 beats CSC 0.33.
         assertEquals("MAT", rank(repository).get(0).getSubjectCode());

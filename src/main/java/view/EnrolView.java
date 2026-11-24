@@ -4,9 +4,17 @@ import interface_adapter.enrol_course.EnrolCourseController;
 import interface_adapter.enrol_course.EnrolState;
 import interface_adapter.enrol_course.EnrolViewModel;
 import interface_adapter.enrol_course.EnrolViewModelListener;
-
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import java.awt.BorderLayout;
+import javax.swing.BoxLayout;
+import java.awt.Component;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 
 /**
  * The View for the Enrol Course Use Case: a form for the course details.

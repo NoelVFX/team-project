@@ -71,6 +71,12 @@ class ViewCourseProgressInteractorTest {
                 assertEquals("GREEN", outputData.getTopics().get(0).getConfidence());
                 assertEquals("Clean Architecture", outputData.getTopics().get(1).getName());
                 assertEquals("RED", outputData.getTopics().get(1).getConfidence());
+                // The saved marks are passed on, so the grade calculator can start from them.
+                assertEquals("Paul", outputData.getUsername());
+                assertEquals(2, outputData.getAssessments().size());
+                assertEquals("Midterm", outputData.getAssessments().get(0).getName());
+                assertEquals(70, outputData.getAssessments().get(0).getMark(), DELTA);
+                assertEquals(20, outputData.getAssessments().get(0).getWeight(), DELTA);
             }
         };
 

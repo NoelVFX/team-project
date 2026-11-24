@@ -11,8 +11,6 @@ import interface_adapter.course_progress.ViewCourseProgressController;
 import interface_adapter.course_progress.ViewCourseProgressPresenter;
 import entity.CourseFactory;
 import entity.StandardConfidenceScoring;
-import entity.UserFactory;
-import interface_adapter.ViewManagerModel;
 import interface_adapter.calculate_grade.CalculateGradeController;
 import interface_adapter.calculate_grade.CalculateGradePresenter;
 import interface_adapter.calculate_grade.GradeCalculatorViewModel;
@@ -81,10 +79,15 @@ import view.SignupView;
 import view.SubjectRankingDialog;
 import view.TargetGradePanel;
 import view.ViewManager;
+import java.awt.CardLayout;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.WindowConstants;
 
-import javax.swing.*;
-import java.awt.*;
-
+/**
+ * Builds the application: creates every view, wires each use case (controller, interactor,
+ * presenter and data access object) and puts the views into one window.
+ */
 public class AppBuilder {
     private final JPanel cardPanel = new JPanel();
     private final CardLayout cardLayout = new CardLayout();
@@ -200,7 +203,8 @@ public class AppBuilder {
     }
 
     public AppBuilder addChangePasswordUseCase() {
-        final ChangePasswordOutputBoundary changePasswordOutputBoundary = new ChangePasswordPresenter(loggedInViewModel);
+        final ChangePasswordOutputBoundary changePasswordOutputBoundary =
+                new ChangePasswordPresenter(loggedInViewModel);
 
         final ChangePasswordInputBoundary changePasswordInteractor =
                 new ChangePasswordInteractor(userDataAccessObject, changePasswordOutputBoundary, userFactory);
@@ -280,7 +284,8 @@ public class AppBuilder {
 
     /**
      * Adds the Calculate Grade Use Case (use case 5) to the application.
-     * The course progress page opens the pop-up with getGradeCalculatorDialog().open().
+     * The Calculate Grade button on the progress page opens the pop-up.
+     * Call after addCourseProgressView.
      * @return this builder
      */
     public AppBuilder addCalculateGradeUseCase() {
@@ -310,11 +315,12 @@ public class AppBuilder {
 
     /**
      * Adds the Set Target Grade Use Case (use case 6) to the application.
-     * The course progress page embeds the panel from getTargetGradePanel().
+     * The panel is shown on the course progress page. Call after addCourseProgressView.
      * @return this builder
      */
     public AppBuilder addSetTargetGradeUseCase() {
         targetGradePanel = new TargetGradePanel(courseProgressViewModel);
+        courseProgressView.setTargetGradePanel(targetGradePanel);
 
         final SetTargetGradeOutputBoundary setTargetGradeOutputBoundary =
                 new SetTargetGradePresenter(courseProgressViewModel);
@@ -333,12 +339,13 @@ public class AppBuilder {
 
     /**
      * Adds the Rank Subjects Use Case (use case 7) to the application.
-     * The home page opens the pop-up with getSubjectRankingDialog().open(username).
+     * The Subject Ranking button on home opens the pop-up. Call after addLoggedInView.
      * @return this builder
      */
     public AppBuilder addRankSubjectsUseCase() {
         final SubjectRankingViewModel subjectRankingViewModel = new SubjectRankingViewModel();
         subjectRankingDialog = new SubjectRankingDialog(application, subjectRankingViewModel);
+        loggedInView.setOpenSubjectRankingAction(username -> subjectRankingDialog.open(username));
 
         final RankSubjectsOutputBoundary rankSubjectsOutputBoundary =
                 new RankSubjectsPresenter(subjectRankingViewModel);

@@ -86,4 +86,21 @@ class ViewCourseProgressPresenterTest {
         presenter.switchToHomeView();
         assertEquals("home", viewManagerModel.getCurrentViewName());
     }
+
+    @Test
+    void successKeepsUsernameAndSavedAssessmentsForTheCalculator() {
+        presenter.prepareSuccessView(new ViewCourseProgressOutputData("Paul", "CSC207",
+                "Software Design", "A-", true, 76.7, "B", 30,
+                Collections.emptyList(),
+                Arrays.asList(new ViewCourseProgressOutputData.AssessmentData("Midterm", 70, 20),
+                        new ViewCourseProgressOutputData.AssessmentData("Quiz", 92.5, 10))));
+
+        final CourseProgressState state = courseProgressViewModel.getState();
+        assertEquals("Paul", state.getUsername());
+        assertEquals(2, state.getAssessments().size());
+        assertEquals("Midterm", state.getAssessments().get(0).getName());
+        assertEquals("70", state.getAssessments().get(0).getMark());
+        assertEquals("20", state.getAssessments().get(0).getWeight());
+        assertEquals("92.5", state.getAssessments().get(1).getMark());
+    }
 }
