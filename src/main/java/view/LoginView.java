@@ -127,11 +127,20 @@ public class LoginView extends JPanel implements ActionListener, LoginViewModelL
     }
 
     /**
-     * React to a button click that results in evt.
+     * React to a click on the cancel button by clearing everything the user typed.
+     * Clearing the fields also clears the username and password in the LoginState,
+     * because the document listeners copy each change into the state.
      * @param evt the ActionEvent to react to
      */
     public void actionPerformed(ActionEvent evt) {
-        System.out.println("Click " + evt.getActionCommand());
+        if (evt.getSource().equals(cancel)) {
+            usernameInputField.setText("");
+            passwordInputField.setText("");
+            loginErrorField.setText("");
+            final LoginState currentState = loginViewModel.getState();
+            currentState.setLoginError(null);
+            loginViewModel.setState(currentState);
+        }
     }
 
     @Override
