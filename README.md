@@ -34,9 +34,6 @@ Possible extensions: Add Topic, Drop Course.
 
 ## User stories
 
-**Use cases 1 and 2: Enrol and see my courses.** As a user, I can enrol in my courses and see them all on one page, so that I can tell at a glance which ones need attention.
-> Mia presses Enrol, enters CSC207 "Software Design" with a target of A- and its main topics, and saves it. Back on the home page, CSC207 appears in her list with its estimated grade, target and whether she is on track; trying to enrol in CSC207 again is refused.
-
 **Use cases 3 and 4: View and update course progress.** As a user, I can open one of my courses and update my confidence in its topics, so that I can see what I understand and which topics need more attention.
 > Mia selects CSC207 on the home page. The progress page shows her estimated grade, target grade and every topic with its confidence colour. She now feels confident with Clean Architecture, so she changes it from yellow to green; the change is saved and the page shows it straight away.
 
