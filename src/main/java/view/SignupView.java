@@ -5,12 +5,18 @@ import interface_adapter.signup.SignupState;
 import interface_adapter.signup.SignupViewModel;
 
 import interface_adapter.signup.SignupViewModelListener;
-import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.BoxLayout;
+import java.awt.Component;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 
 /**
  * The View for the Signup Use Case.

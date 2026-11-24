@@ -17,8 +17,8 @@ public class ViewManagerModel {
         return this.currentViewName;
     }
 
-    public void setState(String currentViewName) {
-        this.currentViewName = currentViewName;
+    public void setState(String viewName) {
+        this.currentViewName = viewName;
     }
 
     public void addListener(ViewManagerModelListener listener) {

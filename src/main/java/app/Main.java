@@ -1,7 +1,11 @@
 package app;
 
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
+/**
+ * Starts the University Learning Progress Tracker.
+ */
 public class Main {
     public static void main(String[] args) {
         final AppBuilder appBuilder;

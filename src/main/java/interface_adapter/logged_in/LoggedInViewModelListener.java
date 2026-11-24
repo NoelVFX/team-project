@@ -1,5 +1,8 @@
 package interface_adapter.logged_in;
 
+/**
+ * Listens for changes to the Logged In View Model.
+ */
 public interface LoggedInViewModelListener {
 
   /**

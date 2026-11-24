@@ -1,5 +1,8 @@
 package interface_adapter.enrol_course;
 
+/**
+ * Listens for changes to the Enrol View Model.
+ */
 public interface EnrolViewModelListener {
 
     /**
