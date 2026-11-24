@@ -26,7 +26,6 @@
             CalculateGradeCourseDataAccessInterface,
             SetTargetGradeCourseDataAccessInterface,
             UpdateTopicConfidenceCourseDataAccessInterface,
-            RankSubjectsCourseDataAccessInterface {
             RankSubjectsCourseDataAccessInterface,
             ViewCoursesCourseDataAccessInterface {
 
