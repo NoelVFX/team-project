@@ -10,13 +10,6 @@ import com.mongodb.client.model.Sorts;
 import entity.Course;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import use_case.calculate_grade.CalculateGradeCourseDataAccessInterface;
-import use_case.enrol_course.EnrolCourseDataAccessInterface;
-import use_case.rank_subjects.RankSubjectsCourseDataAccessInterface;
-import use_case.set_target_grade.SetTargetGradeCourseDataAccessInterface;
-import use_case.update_topic_confidence.UpdateTopicConfidenceCourseDataAccessInterface;
-import use_case.view_course_progress.ViewCourseProgressCourseDataAccessInterface;
-import use_case.view_courses.ViewCoursesCourseDataAccessInterface;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,14 +21,7 @@ import java.util.List;
  * <p>This class is an Adapter: it turns the MongoDB driver's documents and collections into
  * the data access interfaces that the use cases already depend on, so no interactor changes.</p>
  */
-public class MongoCourseDataAccessObject implements
-        ViewCourseProgressCourseDataAccessInterface,
-        EnrolCourseDataAccessInterface,
-        CalculateGradeCourseDataAccessInterface,
-        SetTargetGradeCourseDataAccessInterface,
-        UpdateTopicConfidenceCourseDataAccessInterface,
-        RankSubjectsCourseDataAccessInterface,
-        ViewCoursesCourseDataAccessInterface {
+public class MongoCourseDataAccessObject implements CourseDataAccess {
 
     public static final String COLLECTION = "courses";
 

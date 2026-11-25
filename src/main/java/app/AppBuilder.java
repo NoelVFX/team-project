@@ -2,6 +2,7 @@ package app;
 
 import com.mongodb.client.MongoDatabase;
 import data_access.MongoConfig;
+import data_access.CachingCourseDataAccessObject;
 import data_access.MongoCourseDataAccessObject;
 import data_access.MongoUserDataAccessObject;
 import entity.UserFactory;
@@ -104,7 +105,10 @@ public class AppBuilder {
             new MongoUserDataAccessObject(database, userFactory);
 
     final CourseFactory courseFactory = new CourseFactory();
-    final MongoCourseDataAccessObject courseDataAccessObject = new MongoCourseDataAccessObject(database);
+    // Decorator: the cache answers repeated reads from memory and writes every save through to
+    // MongoDB, so the use cases make far fewer calls to the database.
+    final CachingCourseDataAccessObject courseDataAccessObject =
+            new CachingCourseDataAccessObject(new MongoCourseDataAccessObject(database));
 
     private SignupView signupView;
     private SignupViewModel signupViewModel;

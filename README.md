@@ -74,6 +74,7 @@ View <- ViewModel <- Presenter <- OutputBoundary <- OutputData
 **Design patterns beyond the starter code.**
 - **Strategy:** how topic confidence is scored for the subject ranking is a `ConfidenceScoringStrategy` in the entity layer. `StandardConfidenceScoring` counts green as 1, yellow as 0.5 and red as 0, and decides which colour an average counts as. `AppBuilder` injects it into `RankSubjectsInteractor`, so a different scoring rule is a new class, not a change to the interactor. `RankSubjectsInteractorTest` ranks the same courses with two strategies to show this.
 - **Adapter:** `MongoCourseDataAccessObject` adapts the MongoDB driver's collections and documents to the use cases' data access interfaces, so moving from the in-memory DAO to MongoDB changed no use case. `CourseDocumentMapper` converts in both directions.
+- **Decorator:** `CachingCourseDataAccessObject` wraps `MongoCourseDataAccessObject` and implements the same `CourseDataAccess` interface, so no use case knows it is there. The first read for a user loads all of that user's courses in one query; later reads come from memory, and every save is written through to MongoDB before the cache changes. It hands out copies, so an interactor that changes a course and then fails cannot leave an unsaved change in the cache. `AppBuilder` adds it with one line, and `CachingCourseDataAccessObjectTest` counts the calls that reach the database.
 
 ## Package structure
 
@@ -95,7 +96,9 @@ src/main/java
 │                      AssessmentRow, TargetMessageFormatter, ViewCourseProgress controller/presenter);
 │                      update_topic_confidence, calculate_grade, set_target_grade, rank_subjects
 ├── data_access/       MongoConfig (reads MONGODB_URI / MONGODB_DATABASE); MongoUserDataAccessObject;
+│                      CourseDataAccess (all course DAO interfaces in one);
 │                      MongoCourseDataAccessObject + CourseDocumentMapper;
+│                      CachingCourseDataAccessObject (Decorator in front of the Mongo DAO);
 │                      InMemoryCourseDataAccessObject, InMemoryUserDataAccessObject (tests);
 │                      FileUserDataAccessObject (starter, no longer used)
 └── view/              SignupView, LoginView, LabelTextPanel, ViewManager (starter);
@@ -104,7 +107,7 @@ src/main/java
                        TargetGradePanel; GradeCalculatorDialog; SubjectRankingDialog
 ```
 
-A use case that needs course data adds its data access interface to the `implements` list of both `MongoCourseDataAccessObject` and `InMemoryCourseDataAccessObject`.
+A use case that needs course data adds its data access interface to the `extends` list of `CourseDataAccess` (which `MongoCourseDataAccessObject` and `CachingCourseDataAccessObject` implement) and to the `implements` list of `InMemoryCourseDataAccessObject`.
 
 ## Data persistence
 
